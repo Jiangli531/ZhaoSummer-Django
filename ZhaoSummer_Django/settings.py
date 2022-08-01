@@ -13,10 +13,14 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 from pathlib import Path
 
 from utils.Global import *
+import yaml
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Load secrets from ../secrets.yaml
+with open("../secrets.yaml", 'r') as f:
+    SECRETS = yaml.safe_load(f)
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
@@ -27,8 +31,13 @@ SECRET_KEY = 'django-insecure-(pqbff0&qn(rh25l&+v5rg7_wr%cw@6htb41z88_#@bp^uty4)
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
-
+ALLOWED_HOSTS = ['*']
+# Cors-headers config
+CORS_ALLOW_CREDENTIALS = True
+CORS_ORIGIN_ALLOW_ALL = True
+CORS_ORIGIN_WHITELIST = SECRETS['cors_origin_whitelist']
+CORS_ALLOW_HEADERS = ['*']
+# CORS_ALLOW_HEADERS = SECRETS['cors_allow_headers']
 
 # Application definition
 
@@ -53,6 +62,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware'
 ]
 
 ROOT_URLCONF = 'ZhaoSummer_Django.urls'
