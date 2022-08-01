@@ -9,3 +9,8 @@ class TeamInfo(models.Model):
     teamname = models.CharField(max_length=128, unique=True)
     creator = models.OneToOneField(UserInfo, on_delete=models.CASCADE)
     createTime = models.DateTimeField(auto_now=True)
+
+
+class TeamMember(models.Model):
+    team = models.OneToOneField(TeamInfo, on_delete=models.CASCADE)
+    member = models.OneToOneField(UserInfo, on_delete=models.CASCADE)
