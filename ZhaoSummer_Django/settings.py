@@ -19,7 +19,7 @@ import yaml
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Load secrets from ../secrets.yaml
-with open("../secrets.yaml", 'r') as f:
+with open("./secrets.yaml", 'r') as f:
     SECRETS = yaml.safe_load(f)
 
 # Quick-start development settings - unsuitable for production
