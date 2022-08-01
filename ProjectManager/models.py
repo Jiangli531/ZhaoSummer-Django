@@ -1,14 +1,14 @@
 from django.db import models
 
 # Create your models here.
-from TeamManager.models import TeamInfo
+from TeamManager.models import Group
 from Login.models import UserInfo
 
 
 class ProjectInfo(models.Model):
     projectID = models.AutoField(primary_key=True)
     projectName = models.CharField(max_length=128, unique=True)
-    projectTeam = models.OneToOneField(TeamInfo, on_delete=models.CASCADE)
+    projectTeam = models.OneToOneField(Group, on_delete=models.CASCADE)
     projectIntro = models.TextField
     projectStatus = models.BooleanField(default=False)  #False代表未被删除，True代表已经放入了回收站
 

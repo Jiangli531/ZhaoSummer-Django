@@ -2,15 +2,17 @@ from django.db import models
 
 # Create your models here.
 from Login.models import UserInfo
-from TeamManager.models import TeamInfo
+from TeamManager.models import Group
 
 
-class DocsInfo(models.Model):
-        docsID = models.AutoField(primary_key=True)
-        docsTitle = models.CharField(max_length=128, unique=True)
-        docsCreator = models.OneToOneField(UserInfo, on_delete=models.CASCADE)
-        createTime = models.DateTimeField(auto_now=True)
-        editTime = models.DateTimeField(auto_now=True)
-        content = models.TextField
-        docsTeam = models.OneToOneField(TeamInfo, on_delete=models.CASCADE)
-        docsStatus = models.BooleanField(default=False)  #False代表未被删除，True代表已经放入了回收站
+class Document(models.Model):
+    docId = models.AutoField(primary_key=True)
+    title = models.CharField(max_length=255)
+    creator = models.OneToOneField(UserInfo, on_delete=models.CASCADE)
+    created_time = models.DateTimeField(null=True)
+    modified_time = models.DateTimeField(null=True)
+    content = models.TextField(null=True)
+    docRight = models.IntegerField(default=1)
+    recycled = models.BooleanField(default=False)
+    isOccupied = models.IntegerField(null=True)
+    group = models.OneToOneField(Group, on_delete=models.CASCADE)
