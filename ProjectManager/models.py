@@ -11,7 +11,8 @@ class ProjectInfo(models.Model):
     projectTeam = models.OneToOneField(Group, on_delete=models.CASCADE)
     projectIntro = models.TextField
     projectStatus = models.BooleanField(default=False)  #False代表未被删除，True代表已经放入了回收站
-
+    projectCreator = models.OneToOneField(UserInfo, on_delete=models.CASCADE)
+    projectCreateTime = models.DateTimeField(auto_now=True)
 
 class UMLInfo(models.Model):
     umlID = models.AutoField(primary_key=True)
