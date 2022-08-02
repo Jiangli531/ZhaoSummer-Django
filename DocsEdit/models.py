@@ -16,4 +16,5 @@ class Document(models.Model):
     docRight = models.IntegerField(default=1)
     recycled = models.BooleanField(default=False)
     isOccupied = models.IntegerField(null=True)
-    project=models.OneToOneField(ProjectInfo,on_delete=models.CASCADE)
+    group = models.OneToOneField(Group, on_delete=models.CASCADE)
+    project = models.OneToOneField(ProjectInfo, on_delete=models.CASCADE)
