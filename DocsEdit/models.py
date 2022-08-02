@@ -2,6 +2,7 @@ from django.db import models
 
 # Create your models here.
 from Login.models import UserInfo
+from ProjectManager.models import ProjectInfo
 from TeamManager.models import Group
 
 
@@ -16,3 +17,4 @@ class Document(models.Model):
     recycled = models.BooleanField(default=False)
     isOccupied = models.IntegerField(null=True)
     group = models.OneToOneField(Group, on_delete=models.CASCADE)
+    project = models.OneToOneField(ProjectInfo, on_delete=models.CASCADE)
