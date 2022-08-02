@@ -1,3 +1,5 @@
+import datetime
+
 from django.http import JsonResponse
 from django.shortcuts import render
 
@@ -28,5 +30,21 @@ def group_build(request):
 @csrf_exempt
 def add_member(request):
     if request.method == 'POST':
-        memberid = request.POST.get('memberID')
+        username = request.POST.get('username')
         groupid = request.POST.get('groupID')
+
+        try:
+            user = UserInfo.objects.filter(username=username)
+        except:
+            return JsonResponse({'error': 2001, 'msg': "用户不存在"})
+        try:
+            group = Group.objects.filter(groupId=groupid)
+        except:
+            return JsonResponse({'error': 2002, 'msg': '团队不存在'})
+
+        new_member = GroupMember()
+        new_member.group = group
+        new_member.user = user
+        new_member.joinTime = datetime.time()
+        new_member.save()
+        return JsonResponse({'error': 0, 'msg': '添加成功'})

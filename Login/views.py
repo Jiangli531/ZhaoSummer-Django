@@ -86,7 +86,7 @@ def login(request):
 
                 token = create_token(username)
                 return JsonResponse({
-                    'errno': 0,
+                    'error': 0,
                     'msg': "登录成功",
                     'username': user.username,
                     'authorization': token
