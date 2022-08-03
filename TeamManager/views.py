@@ -404,3 +404,32 @@ def get_member_info(request):
         return JsonResponse({'error': 0, 'member_list': member_list})
     else:
         return JsonResponse({'error': 2001, 'msg': '请求方式错误'})
+
+
+@csrf_exempt
+def get_group_info(request):
+    if request.method == 'POST':
+        userID = request.POST.get('userID')
+
+        try:
+            user = UserInfo.objects.get(userID=userID)
+        except:
+            return JsonResponse({'error': 4001, 'msg': "用户不存在"})
+
+        group_list = []
+
+        for groupMember in GroupMember.objects.filter(user=user):
+            group = groupMember.group
+            group_item = {
+                'groupName': group.groupName,
+                'groupID': group.groupId,
+                'groupMemberNum:': group.memberNum,
+                'isCreator': groupMember.isCreator,
+                'groupDescription': group.description,
+            }
+            group_list.append(group_item)
+
+        return JsonResponse({'error': 0, 'group_list': group_list})
+
+    else:
+        return JsonResponse({'error': 2001, 'msg': '请求方式错误'})
