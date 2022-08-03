@@ -93,6 +93,8 @@ def view_project(request):
                              'teamName': project_team.groupName, 'creator': project_creator.username,
                              'projectIntro': project_intro, 'projectCreateTime': project_create_time,
                              'groupMember': user_list})
+    else:
+        return JsonResponse({'error': 2001, 'msg': "请求方式错误"})
 
 
 @csrf_exempt
