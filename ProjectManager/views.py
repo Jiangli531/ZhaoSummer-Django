@@ -44,7 +44,7 @@ def delete_project(request):
         except:
             return JsonResponse({'error': 4001, 'msg': "用户不存在"})
         try:
-            team = Group.objects.get(groupID=project_teamID)
+            team = Group.objects.get(groupId=project_teamID)
         except:
             return JsonResponse({'error': 4002, 'msg': "团队不存在"})
         try:
@@ -113,7 +113,7 @@ def rename_project(request):
         except:
             return JsonResponse({'error': 4001, 'msg': "用户不存在"})
         try:
-            team = Group.objects.get(groupID=project_teamID)
+            team = Group.objects.get(groupId=project_teamID)
         except:
             return JsonResponse({'error': 4002, 'msg': "团队不存在"})
         try:
