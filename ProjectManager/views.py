@@ -80,8 +80,11 @@ def view_project(request):
         project_creator = project.projectCreator
         project_intro = project.projectIntro
         project_create_time = project.projectCreateTime
+        project_doc_num=project.docNum
+        project_page_num=project.pageNum
         user_list = []
         for user_info in GroupMember.objects.filter(group=project_team):
+
             user = user_info.user
             user_item = {
                 'username': user.username,
@@ -91,7 +94,7 @@ def view_project(request):
             user_list.append(user_item)
         return JsonResponse({'error': 0, 'msg': "查询成功", 'projectName': project_name,
                              'teamName': project_team.groupName, 'creator': project_creator.username,
-                             'projectIntro': project_intro, 'projectCreateTime': project_create_time,
+                             'projectIntro': project_intro, 'projectCreateTime': project_create_time,'docNum':project_doc_num,'pageNum':project_page_num,
                              'groupMember': user_list})
     else:
         return JsonResponse({'error': 2001, 'msg': "请求方式错误"})

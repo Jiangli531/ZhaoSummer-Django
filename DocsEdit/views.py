@@ -19,12 +19,10 @@ from django.views.decorators.csrf import csrf_exempt
 @csrf_exempt
 def viewDocList(request):
     if request.method == 'POST':
-        userid = request.POST.get('userID')
         projectid=request.POST.get('projectID')
-        if userid:
-            user = UserInfo.objects.filter(userID=userid).first()
+        if projectid:
             project=ProjectInfo.objects.filter(projectID=projectid).first()
-            doc_list = Document.objects.filter(creator=user, project=project, recycled=False).order_by('-modified_time')
+            doc_list = Document.objects.filter( project=project, recycled=False).order_by('-modified_time')
             data = []
             for c in doc_list:
                 ret = {

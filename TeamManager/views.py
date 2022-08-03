@@ -425,6 +425,7 @@ def get_group_info(request):
                 'groupID': group.groupId,
                 'groupMemberNum:': group.memberNum,
                 'isCreator': groupMember.isCreator,
+                'isManager': groupMember.isManager,
                 'groupDescription': group.description,
             }
             group_list.append(group_item)
