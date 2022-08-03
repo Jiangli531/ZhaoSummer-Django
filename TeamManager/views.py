@@ -393,12 +393,19 @@ def get_member_info(request):
         member_list = []
         for groupMember in GroupMember.objects.filter(group=group):
             member = groupMember.user
+            if groupMember.isCreator:
+                level='创建者'
+            elif groupMember.isManager:
+                level='管理员'
+            else:
+                level='普通成员'
             member_item = {
                 'username': member.username,
                 'realName': member.realName,
                 'useremail': member.useremail,
                 'isManager': groupMember.isManager,
                 'isCreator': groupMember.isCreator,
+                'level': level,
                 'userID': member.userID,
             }
             member_list.append(member_item)

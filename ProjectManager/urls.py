@@ -9,4 +9,7 @@ urlpatterns = [
     path('projectDelete/', delete_project),
     path('projectView/', view_project),
     path('projectRename/', rename_project),
+    path('axureCreate/', create_page),
+    path('axureRename/', rename_page),
+    path('axureSave/', save_page),
 ]
