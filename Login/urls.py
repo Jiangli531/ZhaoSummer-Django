@@ -10,4 +10,5 @@ urlpatterns = [
     path('confirm/', user_confirm),
     path('forget/', forget_pwd),
     path('update/', update_pwd),
+    path('editUserInfo/', userinfo_edit),
 ]

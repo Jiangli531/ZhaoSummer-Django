@@ -4,7 +4,7 @@ import pytz
 from django.core.mail import send_mail
 from django.http import JsonResponse
 
-from Login.form import RegisterForm, LoginForm, ForgetPwdForm
+from Login.form import RegisterForm, LoginForm, ForgetPwdForm, DetailInfoForm
 from Login.models import UserInfo
 from ZhaoSummer_Django.settings import EMAIL_FROM
 from utils.hash import *
@@ -167,3 +167,35 @@ def update_pwd(request):
             return JsonResponse({'error': 0, 'msg': msg})
         return JsonResponse({'error': 4002, 'msg': '验证码错误'})
     return JsonResponse({'error': 2001, 'msg': '请求方式错误'})
+
+
+@csrf_exempt
+def userinfo_edit(request):
+    if request.method == 'POST':
+
+        detail_form = DetailInfoForm(request.POST)
+
+        if detail_form.is_valid():
+            userID = detail_form.cleaned_data.get('userID')
+            # realName = detail_form.cleaned_data.get('realName')
+            email = detail_form.cleaned_data.get('email')
+            # username = detail_form.cleaned_data.get('username')
+            try:
+                user = UserInfo.objects.get(userID=userID)
+            except:
+                return JsonResponse({'error': 4001, 'msg': '用户不存在'})
+            if user.useremail != email:  # 要更改新的用户名，需要判断用户名是否重复
+                repeated = UserInfo.objects.filter(useremail=email)
+                if repeated.exists():
+                    return JsonResponse({'error': 4003, 'msg': '邮箱已注册'})
+            if email == '':
+                user.email = None
+            else:
+                user.email = email
+            user.save()
+            return JsonResponse({'error': 0, 'msg': '修改成功'})
+
+        else:
+            return JsonResponse({'error': 3001, 'msg': '表单验证错误'})
+
+    return JsonResponse({'error': 2001, 'msg': '请求方式错误！'})
