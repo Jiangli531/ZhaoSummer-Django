@@ -25,7 +25,7 @@ def group_build(request):
         Group.objects.create(groupName=group_name, creator=creator, description=description)
         new_group = Group.objects.get(groupName=group_name, creator=creator, description=description)
         GroupMember.objects.create(group=new_group, user=creator, isCreator=True, isManager=True)
-        return JsonResponse({'error': 0, 'msg': "团队创建成功"})
+        return JsonResponse({'error': 0, 'msg': "团队创建成功", 'groupID': new_group.groupId})
     else:
         return JsonResponse({'error': 2001, 'msg': "请求方式错误"})
 
@@ -398,6 +398,7 @@ def get_member_info(request):
                 'useremail': member.useremail,
                 'isManager': groupMember.isManager,
                 'isCreator': groupMember.isCreator,
+                'userID': member.userID,
             }
             member_list.append(member_item)
         return JsonResponse({'error': 0, 'member_list': member_list})

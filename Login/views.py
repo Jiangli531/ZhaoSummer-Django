@@ -89,7 +89,8 @@ def login(request):
                     'error': 0,
                     'msg': "登录成功",
                     'username': user.username,
-                    'authorization': token
+                    'authorization': token,
+                    'userID': user.userID,
                 })
             else:
                 return JsonResponse({'error': 4003, 'msg': '密码错误'})
