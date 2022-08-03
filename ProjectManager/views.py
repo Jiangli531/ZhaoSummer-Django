@@ -77,6 +77,7 @@ def view_project(request):
         if project.projectStatus:
             return JsonResponse({'error': 4001, 'msg': "项目不存在"})
         project_team = project.projectTeam
+        project_id=project.projectID
         project_creator = project.projectCreator
         project_intro = project.projectIntro
         project_create_time = project.projectCreateTime
@@ -92,7 +93,7 @@ def view_project(request):
                 'isManager': user_info.isManager,
             }
             user_list.append(user_item)
-        return JsonResponse({'error': 0, 'msg': "查询成功", 'projectName': project_name,
+        return JsonResponse({'error': 0, 'msg': "查询成功", 'projectName': project_name,'projectID':project_id,
                              'teamName': project_team.groupName, 'creator': project_creator.username,
                              'projectIntro': project_intro, 'projectCreateTime': project_create_time,'docNum':project_doc_num,'pageNum':project_page_num,
                              'groupMember': user_list})
@@ -132,3 +133,59 @@ def rename_project(request):
             return JsonResponse({'error': 4005, 'msg': "非本团队项目，无权限重命名"})
     else:
         return JsonResponse({'error': 2001, 'msg': "请求方式错误"})
+
+@csrf_exempt
+def create_page(request):
+    if request.method == 'POST':
+        userid=request.POST.get('userID')
+        projectid=request.POST.get('projectID')
+        axureName=request.POST.get('axureName')
+        try:
+            user = UserInfo.objects.get(userID=userid)
+        except:
+            return JsonResponse({'error': 4001, 'msg': "用户不存在"})
+        try:
+            project = ProjectInfo.objects.get(projectID=projectid)
+        except:
+            return JsonResponse({'error': 4002, 'msg': "项目不存在"})
+        if project.projectStatus:
+            return JsonResponse({'error': 4002, 'msg': "项目不存在"})
+        if PageInfo.objects.filter(pageName=axureName, pageProject=project,pageCreator=user).exists():
+            return JsonResponse({'error': 4003, 'msg': "页面已存在"})
+        page=PageInfo(pageName=axureName,pageProject=project,pageCreator=user)
+        page.save()
+        return JsonResponse({'error': 0, 'msg': "创建成功"})
+    else:
+        return JsonResponse({'error': 2001, 'msg': "请求方式错误"})
+
+@csrf_exempt
+def save_page(request):
+    if request.method == 'POST':
+        axureID=request.POST.get('axureID')
+        axureData=request.POST.get('axureData')
+        page=PageInfo.objects.filter(pageID=axureID)
+        if page:
+            page.pageContent=axureData
+            page.save()
+            return JsonResponse({'error': 0, 'msg': "保存成功"})
+        else:
+            return JsonResponse({'error': 4003, 'msg': "页面不存在"})
+    else:
+        return JsonResponse({'error': 2001, 'msg': "请求方式错误"})
+
+@csrf_exempt
+def rename_page(request):
+    if request.method == 'POST':
+        pageID=request.POST.get('axureID')
+        pageName=request.POST.get('axureName')
+        page=PageInfo.objects.filter(pageID=pageID)
+        if page:
+            page.pageName=pageName
+            page.save()
+            return JsonResponse({'error': 0, 'msg': "重命名成功"})
+        else:
+            return JsonResponse({'error': 4003, 'msg': "页面不存在"})
+    else:
+        return JsonResponse({'error': 2001, 'msg': "请求方式错误"})
+
+

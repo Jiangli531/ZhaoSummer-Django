@@ -29,6 +29,7 @@ class PageInfo(models.Model):
     pageID = models.AutoField(primary_key=True)
     pageName = models.CharField(max_length=128, null=False)
     pagePath = models.CharField(max_length=200)
+    pageContent=models.CharField(max_length=300)
     pageCreator = models.ForeignKey(UserInfo, on_delete=models.CASCADE)
     pageProject = models.ForeignKey(ProjectInfo, on_delete=models.CASCADE)
     pageCreateTime = models.DateTimeField(auto_now=True)

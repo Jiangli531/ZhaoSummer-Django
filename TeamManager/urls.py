@@ -12,4 +12,5 @@ urlpatterns = [
     path('deleteManger/', delete_manger),
     path('getMemberInfo/', get_member_info),
     path('getGroupInfo/', get_group_info),
+    path('groupViewProject/', group_view_project),
 ]

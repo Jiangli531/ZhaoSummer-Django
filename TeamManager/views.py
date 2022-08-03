@@ -7,6 +7,7 @@ from django.shortcuts import render
 # Create your views here.
 from django.views.decorators.csrf import csrf_exempt
 from Login.models import UserInfo
+from ProjectManager.models import ProjectInfo
 from TeamManager.models import *
 from ZhaoSummer_Django.settings import EMAIL_FROM
 from utils.send import *
@@ -434,3 +435,39 @@ def get_group_info(request):
 
     else:
         return JsonResponse({'error': 2001, 'msg': '请求方式错误'})
+
+@csrf_exempt
+def group_view_project(request):
+    if request.method == 'POST':
+        group_id = request.POST.get('groupID')
+        try:
+            group = Group.objects.get(groupId=group_id)
+        except:
+            return JsonResponse({'error': 4001, 'msg': "团队不存在"})
+        project_list = []
+        for project in ProjectInfo.objects.filter(projectTeam=group):
+            project_team = project.projectTeam
+            project_name= project.projectName
+            project_id=project.projectID
+            project_creator = project.projectCreator
+            project_intro = project.projectIntro
+            project_create_time = project.projectCreateTime
+            project_doc_num=project.docNum
+            project_page_num=project.pageNum
+            user_list = []
+            for user_info in GroupMember.objects.filter(group=project_team):
+
+                user = user_info.user
+                user_item = {
+                    'username': user.username,
+                    'isCreator': user_info.isCreator,
+                    'isManager': user_info.isManager,
+                }
+                user_list.append(user_item)
+                project_list.append({'error': 0, 'msg': "查询成功", 'projectName': project_name,'projectID':project_id,
+                             'teamName': project_team.groupName, 'creator': project_creator.username,
+                             'projectIntro': project_intro, 'projectCreateTime': project_create_time,'docNum':project_doc_num,'pageNum':project_page_num,
+                             'groupMember': user_list})
+        return JsonResponse(project_list)
+    else:
+        return JsonResponse({'error': 2001, 'msg': "请求方式错误"})
