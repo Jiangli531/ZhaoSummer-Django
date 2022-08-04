@@ -320,7 +320,7 @@ def add_manager(request):
         except:
             return JsonResponse({'error': 4001, 'msg': "用户不存在"})
         try:
-            group = Group.objects.filter(groupId=groupID)
+            group = Group.objects.get(groupId=groupID)
         except:
             return JsonResponse({'error': 4002, 'msg': '团队不存在'})
 
@@ -351,12 +351,12 @@ def delete_manger(request):
         groupID = request.POST.get('groupID')
 
         try:
-            host = UserInfo.objects.filter(userID=hostID)
-            user = UserInfo.objects.filter(username=delete_name)
+            host = UserInfo.objects.get(userID=hostID)
+            user = UserInfo.objects.get(username=delete_name)
         except:
             return JsonResponse({'error': 4001, 'msg': "用户不存在"})
         try:
-            group = Group.objects.filter(groupId=groupID)
+            group = Group.objects.get(groupId=groupID)
         except:
             return JsonResponse({'error': 4002, 'msg': '团队不存在'})
 
