@@ -9,12 +9,13 @@ class ProjectInfo(models.Model):
     projectID = models.AutoField(primary_key=True)
     projectName = models.CharField(max_length=128, unique=True)
     projectTeam = models.ForeignKey(Group, on_delete=models.CASCADE)
-    projectIntro = models.TextField
-    projectStatus = models.BooleanField(default=False)  #False代表未被删除，True代表已经放入了回收站
+    projectIntro = models.CharField(max_length=100, null=True)
+    projectStatus = models.BooleanField(default=False)  # False代表未被删除，True代表已经放入了回收站
     projectCreator = models.ForeignKey(UserInfo, on_delete=models.CASCADE)
     projectCreateTime = models.DateTimeField(auto_now=True)
-    docNum=models.IntegerField()
-    pageNum=models.IntegerField()
+    docNum = models.IntegerField(default=0)
+    pageNum = models.IntegerField(default=0)
+
 
 class UMLInfo(models.Model):
     umlID = models.AutoField(primary_key=True)
@@ -28,8 +29,8 @@ class UMLInfo(models.Model):
 class PageInfo(models.Model):
     pageID = models.AutoField(primary_key=True)
     pageName = models.CharField(max_length=128, null=False)
-    pagePath = models.CharField(max_length=200)
-    pageContent=models.CharField(max_length=300)
+    # pagePath = models.CharField(max_length=200)
+    pageContent = models.TextField(null=True)
     pageCreator = models.ForeignKey(UserInfo, on_delete=models.CASCADE)
     pageProject = models.ForeignKey(ProjectInfo, on_delete=models.CASCADE)
     pageCreateTime = models.DateTimeField(auto_now=True)

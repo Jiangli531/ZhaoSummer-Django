@@ -23,9 +23,17 @@ def create_project(request):
             team = Group.objects.get(groupId=project_teamID)
         except:
             return JsonResponse({'error': 4002, 'msg': "团队不存在"})
+        print(project_name)
+        print(project_intro)
+        print(project_teamID)
+        print(project_creatorID)
         if GroupMember.objects.filter(group=team, user=creator).exists():
-            ProjectInfo.objects.create(projectName=project_name, projectTeam=team, projectIntro=project_intro,
-                                       projectCreator=creator)
+            new_project = ProjectInfo()
+            new_project.projectName = project_name
+            new_project.projectCreator = creator
+            new_project.projectTeam = team
+            new_project.projectIntro = project_intro
+            new_project.save()
             return JsonResponse({'error': 0, 'msg': "项目创建成功"})
         else:
             return JsonResponse({'error': 4003, 'msg': "非团队成员无权限操作"})

@@ -35,7 +35,7 @@ def group_build(request):
 def add_member(request):
     if request.method == 'POST':
         hostID = request.POST.get('hostID')  # 邀请人ID
-        username = request.POST.get('username')
+        username = request.POST.get('inviteName')
         groupID = request.POST.get('groupID')
 
         try:
@@ -454,13 +454,13 @@ def group_view_project(request):
         project_list = []
         for project in ProjectInfo.objects.filter(projectTeam=group):
             project_team = project.projectTeam
-            project_name= project.projectName
-            project_id=project.projectID
+            project_name = project.projectName
+            project_id = project.projectID
             project_creator = project.projectCreator
             project_intro = project.projectIntro
             project_create_time = project.projectCreateTime
-            project_doc_num=project.docNum
-            project_page_num=project.pageNum
+            project_doc_num = project.docNum
+            project_page_num = project.pageNum
             user_list = []
             for user_info in GroupMember.objects.filter(group=project_team):
 
