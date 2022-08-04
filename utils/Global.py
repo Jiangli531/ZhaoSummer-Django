@@ -2,7 +2,7 @@ class email:
     EMAIL_HOST = 'smtp.qq.com'
     EMAIL_PORT = 465
     EMAIL_HOST_USER = '409516522@qq.com'
-    EMAIL_HOST_PASSWORD = 'dapzwzetffprbghi'  # 邮箱 SMTP 授权码，此处为虚拟，须修改
+    EMAIL_HOST_PASSWORD = 'cgvalitduhdpbicj'  # 邮箱 SMTP 授权码，此处为虚拟，须修改
 
 
 class db:

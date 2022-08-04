@@ -35,7 +35,7 @@ def group_build(request):
 def add_member(request):
     if request.method == 'POST':
         hostID = request.POST.get('hostID')  # 邀请人ID
-        username = request.POST.get('username')
+        username = request.POST.get('inviteName')
         groupID = request.POST.get('groupID')
 
         try:
@@ -276,12 +276,12 @@ def add_member(request):
 def delete_member(request):
     if request.method == 'POST':
         hostID = request.POST.get('hostID')  # 操作者ID
-        userID = request.POST.get('userID')  # 被删除者ID
+        delete_name = request.POST.get('name')  # 被删除者名字
         groupID = request.POST.get('groupID')
 
         try:
-            host = UserInfo.objects.filter(userID=hostID)
-            user = UserInfo.objects.filter(userID=userID)
+            host = UserInfo.objects.get(userID=hostID)
+            user = UserInfo.objects.get(username=delete_name)
         except:
             return JsonResponse({'error': 4001, 'msg': "用户不存在"})
         try:
@@ -295,7 +295,7 @@ def delete_member(request):
         except:
             return JsonResponse({'error': 4003, 'msg': '团队无操作者记录'})
 
-        if groupHost.isCreator or not groupUser.isManager:
+        if groupHost.isCreator or not groupUser.isManager or host.username == user.username:
             # 删除
             groupUser.delete()
             group.memberNum -= 1
@@ -311,16 +311,16 @@ def delete_member(request):
 def add_manager(request):
     if request.method == 'POST':
         hostID = request.POST.get('hostID')  # 操作者ID
-        userID = request.POST.get('userID')  # 被操作者ID
+        add_name = request.POST.get('name')  # 被操作者name
         groupID = request.POST.get('groupID')
 
         try:
-            host = UserInfo.objects.filter(userID=hostID)
-            user = UserInfo.objects.filter(userID=userID)
+            host = UserInfo.objects.get(userID=hostID)
+            user = UserInfo.objects.get(username=add_name)
         except:
             return JsonResponse({'error': 4001, 'msg': "用户不存在"})
         try:
-            group = Group.objects.filter(groupId=groupID)
+            group = Group.objects.get(groupId=groupID)
         except:
             return JsonResponse({'error': 4002, 'msg': '团队不存在'})
 
@@ -347,16 +347,16 @@ def add_manager(request):
 def delete_manger(request):
     if request.method == 'POST':
         hostID = request.POST.get('hostID')  # 操作者ID
-        userID = request.POST.get('userID')  # 被操作者ID
+        delete_name = request.POST.get('name')  # 被操作者name
         groupID = request.POST.get('groupID')
 
         try:
-            host = UserInfo.objects.filter(userID=hostID)
-            user = UserInfo.objects.filter(userID=userID)
+            host = UserInfo.objects.get(userID=hostID)
+            user = UserInfo.objects.get(username=delete_name)
         except:
             return JsonResponse({'error': 4001, 'msg': "用户不存在"})
         try:
-            group = Group.objects.filter(groupId=groupID)
+            group = Group.objects.get(groupId=groupID)
         except:
             return JsonResponse({'error': 4002, 'msg': '团队不存在'})
 
@@ -452,18 +452,17 @@ def group_view_project(request):
         except:
             return JsonResponse({'error': 4001, 'msg': "团队不存在"})
         project_list = []
-        for project in ProjectInfo.objects.filter(projectTeam=group):
+        for project in ProjectInfo.objects.filter(projectTeam=group, projectStatus=False):
             project_team = project.projectTeam
-            project_name= project.projectName
-            project_id=project.projectID
+            project_name = project.projectName
+            project_id = project.projectID
             project_creator = project.projectCreator
             project_intro = project.projectIntro
             project_create_time = project.projectCreateTime
-            project_doc_num=project.docNum
-            project_page_num=project.pageNum
+            project_doc_num = project.docNum
+            project_page_num = project.pageNum
             user_list = []
             for user_info in GroupMember.objects.filter(group=project_team):
-
                 user = user_info.user
                 user_item = {
                     'username': user.username,
@@ -471,10 +470,12 @@ def group_view_project(request):
                     'isManager': user_info.isManager,
                 }
                 user_list.append(user_item)
-                project_list.append({'error': 0, 'msg': "查询成功", 'projectName': project_name,'projectID':project_id,
+            project_list.append({'projectName': project_name,'projectID': project_id,
                              'teamName': project_team.groupName, 'creator': project_creator.username,
                              'projectIntro': project_intro, 'projectCreateTime': project_create_time,'docNum':project_doc_num,'pageNum':project_page_num,
                              'groupMember': user_list})
-        return JsonResponse(project_list)
+        return JsonResponse({'error': 0, 'msg': "查询成功", 'project_list': project_list})
+
     else:
         return JsonResponse({'error': 2001, 'msg': "请求方式错误"})
+

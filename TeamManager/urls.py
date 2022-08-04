@@ -9,7 +9,7 @@ urlpatterns = [
     path('addMember/', add_member),
     path('deleteMember/', delete_member),
     path('addManager/', add_manager),
-    path('deleteManger/', delete_manger),
+    path('deleteManager/', delete_manger),
     path('getMemberInfo/', get_member_info),
     path('getGroupInfo/', get_group_info),
     path('groupViewProject/', group_view_project),

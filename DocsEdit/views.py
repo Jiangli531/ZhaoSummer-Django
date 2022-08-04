@@ -40,6 +40,7 @@ def viewDocList(request):
     else:
         return JsonResponse({'errno': 1001, 'msg': "请求方式错误"})
 
+
 @csrf_exempt
 def createDocument(request):
     if request.method == 'POST':
@@ -51,7 +52,7 @@ def createDocument(request):
         if userid:
             user = UserInfo.objects.filter(userID=userid).first()
             project = ProjectInfo.objects.filter(projectID=projectid).first()
-            doc = Document.objects.filter(title=title, creator=user, project=project).first()
+            doc = Document.objects.filter(title=title, project=project).first()
             if doc:
                 return JsonResponse({'errno': 1003, 'msg': "文件名已存在"})
             document = Document()

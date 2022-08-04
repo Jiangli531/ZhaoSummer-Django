@@ -20,6 +20,9 @@ def make_confirm_string(user):  # generate confirm_code for user (username+c_tim
 
 
 def send_email_note(to, email_body, email_title):
+    print(to)
+    # print(email_body)
+    print(email_title)
     try:
         msg = MIMEText(email_body, _subtype='html', _charset='utf-8')  # 发送html格式
         # msg=MIMEText(data, _charset='utf-8') # data 发送文本
@@ -28,10 +31,11 @@ def send_email_note(to, email_body, email_title):
         msg['Subject'] = email_title  # 邮件的主题，也可以说是标题
         server = smtplib.SMTP_SSL("smtp.qq.com", 465)  # 发件人邮箱中的SMTP服务器，端口是465
         server.login(EMAIL_HOST_USER, EMAIL_HOST_PASSWORD)  # 括号中对应的是发件人邮箱账号、邮箱密码
-        server.sendmail(EMAIL_HOST_USER, [to,], msg.as_string())  # 括号中对应的是发件人邮箱账号、收件人邮箱账号、发送邮件
+        server.sendmail(EMAIL_HOST_USER, [to, ], msg.as_string())  # 括号中对应的是发件人邮箱账号、收件人邮箱账号、发送邮件
         server.quit()
         return True
-    except:
+    except Exception as e:
+        print(e)
         return False
 
 
