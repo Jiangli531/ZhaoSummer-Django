@@ -197,3 +197,27 @@ def rename_page(request):
     else:
         return JsonResponse({'error': 2001, 'msg': "请求方式错误"})
 
+
+@csrf_exempt
+def view_axure_list(request):
+    if request.method == 'POST':
+        project_id = request.POST.get('projectID')
+        try:
+            project = ProjectInfo.objects.get(projectID=project_id)
+        except:
+            return JsonResponse({'error': 4001, 'msg': "项目不存在"})
+        axure_list = []
+        for axure in PageInfo.objects.filter(pageProject=project):
+            axure_item = {
+                'axureID': axure.pageID,
+                'axureName': axure.pageName,
+                'creatorID': axure.pageCreator.userID,
+
+            }
+            axure_list.append(axure_item)
+        if not axure_list:
+            return JsonResponse({'error': 4002, 'msg': '项目暂无原型信息'})
+        return JsonResponse({'error': 0, 'msg': "查询成功", 'axure_list': axure_list})
+
+    else:
+        return JsonResponse({'error': 2001, 'msg': "请求方式错误"})
