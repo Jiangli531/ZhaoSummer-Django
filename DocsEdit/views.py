@@ -68,6 +68,8 @@ def createDocument(request):
             document.project=project
             document.group=group
             document.save()
+            project.docNum += 1
+            project.save()
             ret={
                 'docID':document.docId,
                 'title':document.title,
@@ -128,6 +130,8 @@ def recycleDoc(request):
             doc = Document.objects.get(docID=doc_id)
             doc.recycled = True
             doc.save()
+            doc.project.docNum -= 1
+            doc.project.save()
             return JsonResponse({'errno': 0, 'msg': "回收成功"})
     else:
         return JsonResponse({'errno': 1001, 'msg': "请求方式错误"})

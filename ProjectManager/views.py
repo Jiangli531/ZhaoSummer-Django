@@ -163,6 +163,8 @@ def create_page(request):
             return JsonResponse({'error': 4003, 'msg': "页面已存在"})
         page=PageInfo(pageName=axureName,pageProject=project, pageCreator=user)
         page.save()
+        project.pageNum += 1
+        project.save()
         return JsonResponse({'error': 0, 'msg': "创建成功"})
     else:
         return JsonResponse({'error': 2001, 'msg': "请求方式错误"})
@@ -260,6 +262,7 @@ def recover_project(request):
             return JsonResponse({'error': 4005, 'msg': "非本团队项目，无权限回收"})
     else:
         return JsonResponse({'error': 2001, 'msg': "请求方式错误"})
+
 
 #  永久删除回收站项目
 @csrf_exempt
