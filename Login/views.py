@@ -137,7 +137,7 @@ def forget_pwd(request):
                 email_title = "找回密码"
                 code = random_str()  # 随机生成的验证码
                 request.session["code"] = code  # 将验证码保存到session
-                email_body = "Hello!这里是短视频分享网站，你收到这封邮件是因为你正在请求更改密码！如果你没有，请忽视这封邮件！\n你的验证码为：{0}".format(code)
+                email_body = "Hello!这里是《墨书》，你收到这封邮件是因为你正在请求更改密码！如果你没有，请忽视这封邮件！\n你的验证码为：{0}".format(code)
                 send_status = send_mail(email_title, email_body, EMAIL_FROM, [register_email])
                 if send_status:
                     msg = "验证码已发送，请查收邮件"
@@ -157,7 +157,10 @@ def update_pwd(request):
     if request.method == 'POST':
         register_email = request.POST.get("useremail")
         password = request.POST.get("password")
-        user = UserInfo.objects.get(useremail=register_email)
+        try:
+            user = UserInfo.objects.get(useremail=register_email)
+        except:
+            return JsonResponse({'error': 4003, 'msg': '邮箱不存在'})
         code = request.POST.get("code")  # 获取传递过来的验证码
         if code == request.session["code"]:
             if not re.match('^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{8,18}$', password):

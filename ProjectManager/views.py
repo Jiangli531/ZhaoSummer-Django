@@ -77,13 +77,14 @@ def delete_project(request):
 @csrf_exempt
 def view_project(request):
     if request.method == 'POST':
-        project_name = request.POST.get('projectName')
+        projectID = request.POST.get('projectID')
         try:
-            project = ProjectInfo.objects.get(projectName=project_name)
+            project = ProjectInfo.objects.get(projectID=projectID)
         except:
             return JsonResponse({'error': 4001, 'msg': "项目不存在"})
         if project.projectStatus:
             return JsonResponse({'error': 4001, 'msg': "项目不存在"})
+        project_name = project.projectName
         project_team = project.projectTeam
         project_id = project.projectID
         project_creator = project.projectCreator
@@ -290,4 +291,9 @@ def destroy_project(request):
             return JsonResponse({'error': 4005, 'msg': "非本团队项目，无权限删除"})
     else:
         return JsonResponse({'error': 2001, 'msg': "请求方式错误"})
+
+
+# @csrf_exempt
+# def check_AxureName(request):
+#     if request.method == 'POST':
 
