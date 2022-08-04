@@ -1,293 +1,156 @@
+import re
+
+import pytz
+from django.core.mail import send_mail
 from django.http import JsonResponse
-from django.shortcuts import render
+from django.utils import timezone
+
+from DocsEdit.models import *
+from Login.form import RegisterForm, LoginForm, ForgetPwdForm
+from Login.models import UserInfo
+from ZhaoSummer_Django.settings import EMAIL_FROM
+from utils.hash import *
+from utils.send import *
+from utils.token import create_token
+from django.views.decorators.csrf import csrf_exempt
 
 # Create your views here.
-from django.views.decorators.csrf import csrf_exempt
-from Login.models import UserInfo
-from TeamManager.models import *
-from ProjectManager.models import *
-
-
+#查看文档列表
 @csrf_exempt
-def create_project(request):
+def viewDocList(request):
     if request.method == 'POST':
-        project_name = request.POST.get('projectName')
-        project_teamID = request.POST.get('projectTeamID')
-        project_intro = request.POST.get('projectIntro')
-        project_creatorID = request.POST.get('projectCreatorID')
-        try:
-            creator = UserInfo.objects.get(userID=project_creatorID)
-        except:
-            return JsonResponse({'error': 4001, 'msg': "用户不存在"})
-        try:
-            team = Group.objects.get(groupId=project_teamID)
-        except:
-            return JsonResponse({'error': 4002, 'msg': "团队不存在"})
-        # print(project_name)
-        # print(project_intro)
-        # print(project_teamID)
-        # print(project_creatorID)
-        if GroupMember.objects.filter(group=team, user=creator).exists():
-            new_project = ProjectInfo()
-            new_project.projectName = project_name
-            new_project.projectCreator = creator
-            new_project.projectTeam = team
-            new_project.projectIntro = project_intro
-            new_project.save()
-            return JsonResponse({'error': 0, 'msg': "项目创建成功"})
-        else:
-            return JsonResponse({'error': 4003, 'msg': "非团队成员无权限操作"})
-    else:
-        return JsonResponse({'error': 2001, 'msg': "请求方式错误"})
-
-
-@csrf_exempt
-def delete_project(request):
-    if request.method == 'POST':
-        project_name = request.POST.get('projectName')
-        project_teamID = request.POST.get('projectTeamID')
-        project_userID = request.POST.get('projectUserID')
-        try:
-            user = UserInfo.objects.get(userID=project_userID)
-        except:
-            return JsonResponse({'error': 4001, 'msg': "用户不存在"})
-        try:
-            team = Group.objects.get(groupId=project_teamID)
-        except:
-            return JsonResponse({'error': 4002, 'msg': "团队不存在"})
-        try:
-            project = ProjectInfo.objects.get(projectName=project_name)
-        except:
-            return JsonResponse({'error': 4003, 'msg': "项目不存在"})
-        if project.projectStatus:
-            return JsonResponse({'error': 4003, 'msg': "项目不存在"})
-        if ProjectInfo.objects.filter(projectName=project_name, projectTeam=team).exists():
-            if GroupMember.objects.filter(group=team, user=user).exists():
-                project.projectStatus = True
-                project.save()
-                return JsonResponse({'error': 0, 'msg': "删除成功"})
-            else:
-                return JsonResponse({'error': 4004, 'msg': "非团队成员，无权限删除"})
-        else:
-            return JsonResponse({'error': 4005, 'msg': "非本团队项目，无权限删除"})
-    else:
-        return JsonResponse({'error': 2001, 'msg': "请求方式错误"})
-
-
-@csrf_exempt
-def view_project(request):
-    if request.method == 'POST':
-        project_id = request.POST.get('projectID')
-        try:
-            project = ProjectInfo.objects.get(projectID=project_id)
-        except:
-            return JsonResponse({'error': 4001, 'msg': "项目不存在"})
-        if project.projectStatus:
-            return JsonResponse({'error': 4001, 'msg': "项目不存在"})
-        project_team = project.projectTeam
-        project_id = project.projectID
-        project_creator = project.projectCreator
-        project_intro = project.projectIntro
-        project_create_time = project.projectCreateTime
-        project_doc_num=project.docNum
-        project_page_num=project.pageNum
-        user_list = []
-        for user_info in GroupMember.objects.filter(group=project_team):
-
-            user = user_info.user
-            user_item = {
-                'username': user.username,
-                'isCreator': user_info.isCreator,
-                'isManager': user_info.isManager,
-            }
-            user_list.append(user_item)
-        return JsonResponse({'error': 0, 'msg': "查询成功", 'projectName': project_name,'projectID':project_id,
-                             'teamName': project_team.groupName, 'creator': project_creator.username,
-                             'projectIntro': project_intro, 'projectCreateTime': project_create_time,'docNum':project_doc_num,'pageNum':project_page_num,
-                             'groupMember': user_list})
-    else:
-        return JsonResponse({'error': 2001, 'msg': "请求方式错误"})
-
-
-@csrf_exempt
-def rename_project(request):
-    if request.method == 'POST':
-        project_name = request.POST.get('projectName')
-        project_teamID = request.POST.get('projectTeamID')
-        project_userID = request.POST.get('projectUserID')
-        project_new_name = request.POST.get('projectNewName')
-        try:
-            user = UserInfo.objects.get(userID=project_userID)
-        except:
-            return JsonResponse({'error': 4001, 'msg': "用户不存在"})
-        try:
-            team = Group.objects.get(groupId=project_teamID)
-        except:
-            return JsonResponse({'error': 4002, 'msg': "团队不存在"})
-        try:
-            project = ProjectInfo.objects.get(projectName=project_name)
-        except:
-            return JsonResponse({'error': 4003, 'msg': "项目不存在"})
-        if project.projectStatus:
-            return JsonResponse({'error': 4003, 'msg': "项目不存在"})
-        if ProjectInfo.objects.filter(projectName=project_name, projectTeam=team).exists():
-            if GroupMember.objects.filter(group=team, user=user).exists():
-                project.projectName = project_new_name
-                project.save()
-                return JsonResponse({'error': 0, 'msg': "重命名成功"})
-            else:
-                return JsonResponse({'error': 4004, 'msg': "非团队成员，无权限重命名"})
-        else:
-            return JsonResponse({'error': 4005, 'msg': "非本团队项目，无权限重命名"})
-    else:
-        return JsonResponse({'error': 2001, 'msg': "请求方式错误"})
-
-@csrf_exempt
-def create_page(request):
-    if request.method == 'POST':
-        userid=request.POST.get('userID')
         projectid=request.POST.get('projectID')
-        axureName=request.POST.get('axureName')
-        try:
-            user = UserInfo.objects.get(userID=userid)
-        except:
-            return JsonResponse({'error': 4001, 'msg': "用户不存在"})
-        try:
-            project = ProjectInfo.objects.get(projectID=projectid)
-        except:
-            return JsonResponse({'error': 4002, 'msg': "项目不存在"})
-        if project.projectStatus:
-            return JsonResponse({'error': 4002, 'msg': "项目不存在"})
-        if PageInfo.objects.filter(pageName=axureName, pageProject=project,pageCreator=user).exists():
-            return JsonResponse({'error': 4003, 'msg': "页面已存在"})
-        page=PageInfo(pageName=axureName,pageProject=project, pageCreator=user)
-        page.save()
-        return JsonResponse({'error': 0, 'msg': "创建成功"})
-    else:
-        return JsonResponse({'error': 2001, 'msg': "请求方式错误"})
-
-@csrf_exempt
-def save_page(request):
-    if request.method == 'POST':
-        axureID=request.POST.get('axureID')
-        axureData=request.POST.get('axureData')
-        page=PageInfo.objects.filter(pageID=axureID)
-        if page:
-            page.pageContent=axureData
-            page.save()
-            return JsonResponse({'error': 0, 'msg': "保存成功"})
+        if projectid:
+            project=ProjectInfo.objects.filter(projectID=projectid).first()
+            doc_list = Document.objects.filter( project=project, recycled=False).order_by('-modified_time')
+            data = []
+            for c in doc_list:
+                ret = {
+                    'docID': c.docId,
+                    'title': c.title,
+                    'creatorID': c.creator.userID,
+                    'perm': c.docRight,
+                    'modified_date': c.modified_time.strftime('%Y-%m-%d %H:%M:%S')
+                }
+                data.append(ret)
+            return JsonResponse({'errno': 0, 'data': data})
         else:
-            return JsonResponse({'error': 4003, 'msg': "页面不存在"})
+            return JsonResponse({'errno': 1002, 'msg': "用户未登录"})
+
     else:
-        return JsonResponse({'error': 2001, 'msg': "请求方式错误"})
+        return JsonResponse({'errno': 1001, 'msg': "请求方式错误"})
 
 
 @csrf_exempt
-def rename_page(request):
+def createDocument(request):
     if request.method == 'POST':
-        pageID=request.POST.get('axureID')
-        pageName=request.POST.get('axureName')
-        page=PageInfo.objects.filter(pageID=pageID)
-        if page:
-            page.pageName=pageName
-            page.save()
-            return JsonResponse({'error': 0, 'msg': "重命名成功"})
-        else:
-            return JsonResponse({'error': 4003, 'msg': "页面不存在"})
-    else:
-        return JsonResponse({'error': 2001, 'msg': "请求方式错误"})
+        userid = request.POST.get('userID')
+        projectid = request.POST.get('projectID')
+        title = request.POST.get('title')
+        groupid=request.POST.get('groupID')
+        group=Group.objects.filter(groupId=groupid).first()
+        if userid:
+            user = UserInfo.objects.filter(userID=userid).first()
+            try:
+                project = ProjectInfo.objects.get(projectID=projectid)
+            except:
+                return JsonResponse({'errno': 1004, 'msg': "项目不存在"})
 
-
-@csrf_exempt
-def view_axure_list(request):
-    if request.method == 'POST':
-        project_id = request.POST.get('projectID')
-        try:
-            project = ProjectInfo.objects.get(projectID=project_id)
-        except:
-            return JsonResponse({'error': 4001, 'msg': "项目不存在"})
-        axure_list = []
-        for axure in PageInfo.objects.filter(pageProject=project):
-            axure_item = {
-                'axureID': axure.pageID,
-                'axureName': axure.pageName,
-                'creatorID': axure.pageCreator.userID,
-
+            doc = Document.objects.filter(title=title, project=project).first()
+            if doc:
+                return JsonResponse({'errno': 1003, 'msg': "文件名已存在"})
+            document = Document()
+            document.creator = user
+            document.title = title
+            document.content = request.POST.get('content')
+            document.created_time = timezone.now()
+            document.modified_time = timezone.now()
+            document.project=project
+            document.group=group
+            document.save()
+            ret={
+                'docID':document.docId,
+                'title':document.title,
             }
-            axure_list.append(axure_item)
-        if not axure_list:
-            return JsonResponse({'error': 4002, 'msg': '项目暂无原型信息'})
-        return JsonResponse({'error': 0, 'msg': "查询成功", 'axure_list': axure_list})
-
+            return JsonResponse({'errno': 0, 'data': ret})
+        else:
+            return JsonResponse({'errno': 1002, 'msg': "用户未登录"})
     else:
-        return JsonResponse({'error': 2001, 'msg': "请求方式错误"})
+        return JsonResponse({'errno': 1001, 'msg': "请求方式错误"})
+
+@csrf_exempt
+def viewDoc(request):
+    if request.method == 'GET':
+        doc_id = request.POST.get("docID")
+        doc = Document.objects.filter(docID=doc_id).first()
+        if doc:
+            ret = {
+                    'title': doc.title,
+                    'content': doc.content,
+                    'docRight': doc.docRight
+            }
+            return JsonResponse({'errno': 0, 'data': ret})
+        else:
+                return JsonResponse({'errno': 1003, 'msg': "未找到该文件}"})
+    else:
+        return JsonResponse({'errno': 1001, 'msg': "请求方式错误"})
+
+@csrf_exempt
+def modifyDocName(request):
+    if request.method == 'POST':
+            doc_id = request.POST.get("docID")
+            title = request.POST.get("title")
+            doc = Document.objects.get(docID=doc_id)
+            doc.title = title
+            doc.save()
+            return JsonResponse({'errno': 0, 'msg': "修改成功"})
+    else:
+        return JsonResponse({'errno': 1001, 'msg': "请求方式错误"})
 
 
 @csrf_exempt
-def recover_project(request):
+def modifyDocContent(request):
     if request.method == 'POST':
-        project_ID = request.POST.get('projectID')
-        project_teamID = request.POST.get('projectTeamID')
-        project_userID = request.POST.get('projectUserID')
-        try:
-            user = UserInfo.objects.get(userID=project_userID)
-        except:
-            return JsonResponse({'error': 4001, 'msg': "用户不存在"})
-        try:
-            team = Group.objects.get(groupId=project_teamID)
-        except:
-            return JsonResponse({'error': 4002, 'msg': "团队不存在"})
-        try:
-            project = ProjectInfo.objects.get(projectID=project_ID, projectStatus=True)
-        except:
-            return JsonResponse({'error': 4003, 'msg': "项目不存在"})
-
-        if ProjectInfo.objects.filter(projectID=project_ID, projectTeam=team).exists():
-            if GroupMember.objects.filter(group=team, user=user).exists():
-                if ProjectInfo.objects.get(projectID=project_ID, projectTeam=team).projectStatus:
-                    project.projectStatus = False
-                    project.save()
-                    return JsonResponse({'error': 0, 'msg': "回收成功"})
-                else:
-                    return JsonResponse({'error': 4006, 'msg': "该项目不在回收站中"})
-            else:
-                return JsonResponse({'error': 4004, 'msg': "非团队成员，无权限回收"})
-        else:
-            return JsonResponse({'error': 4005, 'msg': "非本团队项目，无权限回收"})
+            doc_id = request.POST.get("docID")
+            content = request.POST.get("content")
+            doc = Document.objects.get(docID=doc_id)
+            doc.content = content
+            doc.modified_time = timezone.now()
+            doc.save()
+            return JsonResponse({'errno': 0, 'msg': "修改成功"})
     else:
-        return JsonResponse({'error': 2001, 'msg': "请求方式错误"})
+        return JsonResponse({'errno': 1001, 'msg': "请求方式错误"})
 
-#  永久删除回收站项目
 @csrf_exempt
-def destroy_project(request):
+def recycleDoc(request):
     if request.method == 'POST':
-        project_ID = request.POST.get('projectID')
-        project_teamID = request.POST.get('projectTeamID')
-        project_userID = request.POST.get('projectUserID')
-        try:
-            user = UserInfo.objects.get(userID=project_userID)
-        except:
-            return JsonResponse({'error': 4001, 'msg': "用户不存在"})
-        try:
-            team = Group.objects.get(groupId=project_teamID)
-        except:
-            return JsonResponse({'error': 4002, 'msg': "团队不存在"})
-        try:
-            project = ProjectInfo.objects.get(projectID=project_ID)
-        except:
-            return JsonResponse({'error': 4003, 'msg': "项目不存在"})
-
-        if ProjectInfo.objects.filter(projectID=project_ID, projectTeam=team).exists():
-            if GroupMember.objects.filter(group=team, user=user).exists():
-                if ProjectInfo.objects.get(projectID=project_ID, projectTeam=team).projectStatus:
-                    project.delete()
-                    return JsonResponse({'error': 0, 'msg': "删除成功"})
-                else:
-                    return JsonResponse({'error': 4006, 'msg': "项目不在回收站中"})
-            else:
-                return JsonResponse({'error': 4004, 'msg': "非团队成员，无权限删除"})
-        else:
-            return JsonResponse({'error': 4005, 'msg': "非本团队项目，无权限删除"})
+            doc_id = request.POST.get("docID")
+            doc = Document.objects.get(docID=doc_id)
+            doc.recycled = True
+            doc.save()
+            return JsonResponse({'errno': 0, 'msg': "回收成功"})
     else:
-        return JsonResponse({'error': 2001, 'msg': "请求方式错误"})
+        return JsonResponse({'errno': 1001, 'msg': "请求方式错误"})
 
+
+# 删除回收站文档/彻底删除文档
+@csrf_exempt
+def delRecycleDoc(request):
+    if request.method == 'POST':
+            doc_id = request.POST.get("docId")
+            Document.objects.filter(docID=doc_id).first().delete()
+            return JsonResponse({'errno': 0, 'msg': "删除成功"})
+    else:
+        return JsonResponse({'errno': 1001, 'msg': "请求方式错误"})
+
+# 回收站恢复文档（个人中心）
+@csrf_exempt
+def recover(request):
+    if request.method == 'POST':
+            doc_id = request.POST.get("docId")
+            doc = Document.objects.filter(docID=doc_id).first()
+            doc.recycled = False
+            doc.save()
+            return JsonResponse({'errno': 0, 'msg': "恢复成功"})
+    else:
+        return JsonResponse({'errno': 1001, 'msg': "请求方式错误"})
