@@ -143,6 +143,7 @@ def rename_project(request):
     else:
         return JsonResponse({'error': 2001, 'msg': "请求方式错误"})
 
+
 @csrf_exempt
 def create_page(request):
     if request.method == 'POST':
@@ -165,7 +166,7 @@ def create_page(request):
         page.save()
         project.pageNum += 1
         project.save()
-        return JsonResponse({'error': 0, 'msg': "创建成功"})
+        return JsonResponse({'error': 0, 'msg': "创建成功", 'pageID': page.pageID})
     else:
         return JsonResponse({'error': 2001, 'msg': "请求方式错误"})
 
@@ -319,5 +320,31 @@ def view_Axure(request):
             'axureCreateTime': axure.pageCreateTime,
         })
 
+    else:
+        return JsonResponse({'error': 2001, 'msg': '请求方式错误'})
+
+
+@csrf_exempt
+def confirm_Authority(request):
+    if request.method == 'POST':
+        projectID = request.POST.get('projectID')
+        userID = request.POST.get('userID')
+
+        try:
+            project = ProjectInfo.objects.get(projectID=projectID)
+        except:
+            return JsonResponse({'error': 4001, 'msg': '项目不存在!'})
+        try:
+            user = UserInfo.objects.get(userID=userID)
+        except:
+            return JsonResponse({'error': 4002, 'msg': '用户不存在!'})
+
+        authority = False
+
+        # 如果用户在团队中，则对该项目有编辑权限
+        if GroupMember.objects.filter(group=project.projectTeam, user=user).exists():
+            authority = True
+
+        return JsonResponse({'error': 0, 'msg': '查询成功', 'authority': authority})
     else:
         return JsonResponse({'error': 2001, 'msg': '请求方式错误'})
