@@ -167,18 +167,21 @@ def create_page(request):
     else:
         return JsonResponse({'error': 2001, 'msg': "请求方式错误"})
 
+
 @csrf_exempt
 def save_page(request):
     if request.method == 'POST':
         axureID=request.POST.get('axureID')
         axureData=request.POST.get('axureData')
-        page=PageInfo.objects.filter(pageID=axureID)
-        if page:
-            page.pageContent=axureData
-            page.save()
-            return JsonResponse({'error': 0, 'msg': "保存成功"})
-        else:
-            return JsonResponse({'error': 4003, 'msg': "页面不存在"})
+
+        try:
+            page=PageInfo.objects.get(pageID=axureID)
+        except:
+            return JsonResponse({'error': 4001, 'msg': "原型不存在"})
+
+        page.pageContent=axureData
+        page.save()
+        return JsonResponse({'error': 0, 'msg': "保存成功"})
     else:
         return JsonResponse({'error': 2001, 'msg': "请求方式错误"})
 
@@ -293,7 +296,25 @@ def destroy_project(request):
         return JsonResponse({'error': 2001, 'msg': "请求方式错误"})
 
 
-# @csrf_exempt
-# def check_AxureName(request):
-#     if request.method == 'POST':
+@csrf_exempt
+def view_Axure(request):
+    if request.method == 'POST':
+        axureID = request.POST.get('axureID')
 
+        try:
+            axure = PageInfo.objects.get(pageID=axureID)
+        except:
+            return JsonResponse({'error': 4001, 'msg': '未查找到原型！'})
+
+        return JsonResponse({
+            'error': 0,
+            'msg': '查询成功',
+            'axureID': axureID,
+            'axureName': axure.pageName,
+            'creatorID': axure.pageCreator.userID,
+            'axureContent': axure.pageContent,
+            'axureCreateTime': axure.pageCreateTime,
+        })
+
+    else:
+        return JsonResponse({'error': 2001, 'msg': '请求方式错误'})

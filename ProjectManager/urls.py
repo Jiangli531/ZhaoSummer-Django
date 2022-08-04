@@ -15,5 +15,5 @@ urlpatterns = [
     path('viewAxureList/', view_axure_list),
     path('recoverProject/', recover_project),
     path('destroyProject/', destroy_project),
-    # path('checkAxureName/', check_AxureName),
+    path('viewAxure/', view_Axure),
 ]

@@ -58,7 +58,10 @@ def get_exp_time(token):
 
 
 def check_token(username, token):
-    return get_username(token) == username and get_exp_time(token) > time.time()
+    try:
+        return get_username(token) == username and get_exp_time(token) > time.time()
+    except:
+        return False
     # username = get_username(token)
     # last_token = cache.get(username)
     # if last_token:
