@@ -244,9 +244,12 @@ def recover_project(request):
 
         if ProjectInfo.objects.filter(projectID=project_ID, projectTeam=team).exists():
             if GroupMember.objects.filter(group=team, user=user).exists():
-                project.projectStatus = False
-                project.save()
-                return JsonResponse({'error': 0, 'msg': "回收成功"})
+                if ProjectInfo.objects.get(projectID=project_ID, projectTeam=team).projectStatus:
+                    project.projectStatus = False
+                    project.save()
+                    return JsonResponse({'error': 0, 'msg': "回收成功"})
+                else:
+                    return JsonResponse({'error': 4006, 'msg': "该项目不在回收站中"})
             else:
                 return JsonResponse({'error': 4004, 'msg': "非团队成员，无权限回收"})
         else:
@@ -276,8 +279,11 @@ def destroy_project(request):
 
         if ProjectInfo.objects.filter(projectID=project_ID, projectTeam=team).exists():
             if GroupMember.objects.filter(group=team, user=user).exists():
-                project.delete()
-                return JsonResponse({'error': 0, 'msg': "删除成功"})
+                if ProjectInfo.objects.get(projectID=project_ID, projectTeam=team).projectStatus:
+                    project.delete()
+                    return JsonResponse({'error': 0, 'msg': "删除成功"})
+                else:
+                    return JsonResponse({'error': 4006, 'msg': "项目不在回收站中"})
             else:
                 return JsonResponse({'error': 4004, 'msg': "非团队成员，无权限删除"})
         else:
