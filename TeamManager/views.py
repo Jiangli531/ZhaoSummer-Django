@@ -458,7 +458,8 @@ def group_view_project(request):
             project_id = project.projectID
             project_creator = project.projectCreator
             project_intro = project.projectIntro
-            project_create_time = project.projectCreateTime
+            #日期保留到日
+            project_create_time = project.projectCreateTime.strftime('%Y-%m-%d')
             project_doc_num = project.docNum
             project_page_num = project.pageNum
             user_list = []
