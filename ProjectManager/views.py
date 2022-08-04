@@ -23,10 +23,10 @@ def create_project(request):
             team = Group.objects.get(groupId=project_teamID)
         except:
             return JsonResponse({'error': 4002, 'msg': "团队不存在"})
-        print(project_name)
-        print(project_intro)
-        print(project_teamID)
-        print(project_creatorID)
+        # print(project_name)
+        # print(project_intro)
+        # print(project_teamID)
+        # print(project_creatorID)
         if GroupMember.objects.filter(group=team, user=creator).exists():
             new_project = ProjectInfo()
             new_project.projectName = project_name
@@ -85,7 +85,7 @@ def view_project(request):
         if project.projectStatus:
             return JsonResponse({'error': 4001, 'msg': "项目不存在"})
         project_team = project.projectTeam
-        project_id=project.projectID
+        project_id = project.projectID
         project_creator = project.projectCreator
         project_intro = project.projectIntro
         project_create_time = project.projectCreateTime
@@ -160,7 +160,7 @@ def create_page(request):
             return JsonResponse({'error': 4002, 'msg': "项目不存在"})
         if PageInfo.objects.filter(pageName=axureName, pageProject=project,pageCreator=user).exists():
             return JsonResponse({'error': 4003, 'msg': "页面已存在"})
-        page=PageInfo(pageName=axureName,pageProject=project,pageCreator=user)
+        page=PageInfo(pageName=axureName,pageProject=project, pageCreator=user)
         page.save()
         return JsonResponse({'error': 0, 'msg': "创建成功"})
     else:
@@ -181,6 +181,7 @@ def save_page(request):
     else:
         return JsonResponse({'error': 2001, 'msg': "请求方式错误"})
 
+
 @csrf_exempt
 def rename_page(request):
     if request.method == 'POST':
@@ -195,5 +196,4 @@ def rename_page(request):
             return JsonResponse({'error': 4003, 'msg': "页面不存在"})
     else:
         return JsonResponse({'error': 2001, 'msg': "请求方式错误"})
-
 

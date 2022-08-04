@@ -452,7 +452,7 @@ def group_view_project(request):
         except:
             return JsonResponse({'error': 4001, 'msg': "团队不存在"})
         project_list = []
-        for project in ProjectInfo.objects.filter(projectTeam=group):
+        for project in ProjectInfo.objects.filter(projectTeam=group, projectStatus=False):
             project_team = project.projectTeam
             project_name = project.projectName
             project_id = project.projectID
