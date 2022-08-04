@@ -40,6 +40,7 @@ def viewDocList(request):
     else:
         return JsonResponse({'errno': 1001, 'msg': "请求方式错误"})
 
+
 @csrf_exempt
 def createDocument(request):
     if request.method == 'POST':

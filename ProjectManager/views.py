@@ -221,3 +221,67 @@ def view_axure_list(request):
 
     else:
         return JsonResponse({'error': 2001, 'msg': "请求方式错误"})
+
+
+@csrf_exempt
+def recover_project(request):
+    if request.method == 'POST':
+        project_ID = request.POST.get('projectID')
+        project_teamID = request.POST.get('projectTeamID')
+        project_userID = request.POST.get('projectUserID')
+        try:
+            user = UserInfo.objects.get(userID=project_userID)
+        except:
+            return JsonResponse({'error': 4001, 'msg': "用户不存在"})
+        try:
+            team = Group.objects.get(groupId=project_teamID)
+        except:
+            return JsonResponse({'error': 4002, 'msg': "团队不存在"})
+        try:
+            project = ProjectInfo.objects.get(projectID=project_ID, projectStatus=True)
+        except:
+            return JsonResponse({'error': 4003, 'msg': "项目不存在"})
+
+        if ProjectInfo.objects.filter(projectID=project_ID, projectTeam=team).exists():
+            if GroupMember.objects.filter(group=team, user=user).exists():
+                project.projectStatus = False
+                project.save()
+                return JsonResponse({'error': 0, 'msg': "回收成功"})
+            else:
+                return JsonResponse({'error': 4004, 'msg': "非团队成员，无权限回收"})
+        else:
+            return JsonResponse({'error': 4005, 'msg': "非本团队项目，无权限回收"})
+    else:
+        return JsonResponse({'error': 2001, 'msg': "请求方式错误"})
+
+#  永久删除回收站项目
+@csrf_exempt
+def destroy_project(request):
+    if request.method == 'POST':
+        project_ID = request.POST.get('projectID')
+        project_teamID = request.POST.get('projectTeamID')
+        project_userID = request.POST.get('projectUserID')
+        try:
+            user = UserInfo.objects.get(userID=project_userID)
+        except:
+            return JsonResponse({'error': 4001, 'msg': "用户不存在"})
+        try:
+            team = Group.objects.get(groupId=project_teamID)
+        except:
+            return JsonResponse({'error': 4002, 'msg': "团队不存在"})
+        try:
+            project = ProjectInfo.objects.get(projectID=project_ID)
+        except:
+            return JsonResponse({'error': 4003, 'msg': "项目不存在"})
+
+        if ProjectInfo.objects.filter(projectID=project_ID, projectTeam=team).exists():
+            if GroupMember.objects.filter(group=team, user=user).exists():
+                project.delete()
+                return JsonResponse({'error': 0, 'msg': "删除成功"})
+            else:
+                return JsonResponse({'error': 4004, 'msg': "非团队成员，无权限删除"})
+        else:
+            return JsonResponse({'error': 4005, 'msg': "非本团队项目，无权限删除"})
+    else:
+        return JsonResponse({'error': 2001, 'msg': "请求方式错误"})
+
