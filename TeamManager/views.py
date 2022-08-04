@@ -276,12 +276,12 @@ def add_member(request):
 def delete_member(request):
     if request.method == 'POST':
         hostID = request.POST.get('hostID')  # 操作者ID
-        userID = request.POST.get('userID')  # 被删除者ID
+        delete_name = request.POST.get('name')  # 被删除者名字
         groupID = request.POST.get('groupID')
 
         try:
-            host = UserInfo.objects.filter(userID=hostID)
-            user = UserInfo.objects.filter(userID=userID)
+            host = UserInfo.objects.get(userID=hostID)
+            user = UserInfo.objects.get(username=delete_name)
         except:
             return JsonResponse({'error': 4001, 'msg': "用户不存在"})
         try:
@@ -295,7 +295,7 @@ def delete_member(request):
         except:
             return JsonResponse({'error': 4003, 'msg': '团队无操作者记录'})
 
-        if groupHost.isCreator or not groupUser.isManager:
+        if groupHost.isCreator or not groupUser.isManager or host.username == user.username:
             # 删除
             groupUser.delete()
             group.memberNum -= 1
@@ -311,16 +311,16 @@ def delete_member(request):
 def add_manager(request):
     if request.method == 'POST':
         hostID = request.POST.get('hostID')  # 操作者ID
-        userID = request.POST.get('userID')  # 被操作者ID
+        add_name = request.POST.get('name')  # 被操作者name
         groupID = request.POST.get('groupID')
 
         try:
-            host = UserInfo.objects.filter(userID=hostID)
-            user = UserInfo.objects.filter(userID=userID)
+            host = UserInfo.objects.get(userID=hostID)
+            user = UserInfo.objects.get(username=add_name)
         except:
             return JsonResponse({'error': 4001, 'msg': "用户不存在"})
         try:
-            group = Group.objects.filter(groupId=groupID)
+            group = Group.objects.get(groupId=groupID)
         except:
             return JsonResponse({'error': 4002, 'msg': '团队不存在'})
 
@@ -347,16 +347,16 @@ def add_manager(request):
 def delete_manger(request):
     if request.method == 'POST':
         hostID = request.POST.get('hostID')  # 操作者ID
-        userID = request.POST.get('userID')  # 被操作者ID
+        delete_name = request.POST.get('name')  # 被操作者name
         groupID = request.POST.get('groupID')
 
         try:
-            host = UserInfo.objects.filter(userID=hostID)
-            user = UserInfo.objects.filter(userID=userID)
+            host = UserInfo.objects.get(userID=hostID)
+            user = UserInfo.objects.get(username=delete_name)
         except:
             return JsonResponse({'error': 4001, 'msg': "用户不存在"})
         try:
-            group = Group.objects.filter(groupId=groupID)
+            group = Group.objects.get(groupId=groupID)
         except:
             return JsonResponse({'error': 4002, 'msg': '团队不存在'})
 
