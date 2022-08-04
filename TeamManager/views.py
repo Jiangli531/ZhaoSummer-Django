@@ -463,7 +463,6 @@ def group_view_project(request):
             project_page_num = project.pageNum
             user_list = []
             for user_info in GroupMember.objects.filter(group=project_team):
-
                 user = user_info.user
                 user_item = {
                     'username': user.username,
@@ -471,10 +470,12 @@ def group_view_project(request):
                     'isManager': user_info.isManager,
                 }
                 user_list.append(user_item)
-                project_list.append({'error': 0, 'msg': "查询成功", 'projectName': project_name,'projectID':project_id,
+            project_list.append({'projectName': project_name,'projectID': project_id,
                              'teamName': project_team.groupName, 'creator': project_creator.username,
                              'projectIntro': project_intro, 'projectCreateTime': project_create_time,'docNum':project_doc_num,'pageNum':project_page_num,
                              'groupMember': user_list})
-        return JsonResponse(project_list)
+        return JsonResponse({'error': 0, 'msg': "查询成功", 'project_list': project_list})
+
     else:
         return JsonResponse({'error': 2001, 'msg': "请求方式错误"})
+
