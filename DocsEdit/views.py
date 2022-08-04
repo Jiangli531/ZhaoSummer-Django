@@ -46,6 +46,8 @@ def createDocument(request):
         userid = request.POST.get('userID')
         projectid = request.POST.get('projectID')
         title = request.POST.get('title')
+        groupid=request.POST.get('groupID')
+        group=Group.objects.filter(groupId=groupid).first()
         if userid:
             user = UserInfo.objects.filter(userID=userid).first()
             project = ProjectInfo.objects.filter(projectID=projectid).first()
@@ -58,6 +60,7 @@ def createDocument(request):
             document.content = request.POST.get('content')
             document.created_time = timezone.now()
             document.modified_time = timezone.now()
+            document.group=group
             document.save()
             return JsonResponse({'errno': 0, 'msg': "创建成功"})
         else:
