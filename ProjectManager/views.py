@@ -23,6 +23,8 @@ def create_project(request):
             team = Group.objects.get(groupId=project_teamID)
         except:
             return JsonResponse({'error': 4002, 'msg': "团队不存在"})
+        if ProjectInfo.objects.filter(projectName=project_name, projectTeam=team).exists():
+            return JsonResponse({'error': 4004, 'msg': '项目名称重复啦！'})
         # print(project_name)
         # print(project_intro)
         # print(project_teamID)
