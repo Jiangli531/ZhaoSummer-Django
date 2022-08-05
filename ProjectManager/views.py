@@ -348,3 +348,42 @@ def confirm_Authority(request):
         return JsonResponse({'error': 0, 'msg': '查询成功', 'authority': authority})
     else:
         return JsonResponse({'error': 2001, 'msg': '请求方式错误'})
+
+
+@csrf_exempt
+def view_recycle_project(request):
+    if request.method == 'POST':
+        group_id = request.POST.get('groupID')
+        try:
+            group = Group.objects.get(groupId=group_id)
+        except:
+            return JsonResponse({'error': 4001, 'msg': "团队不存在"})
+        project_list = []
+        for project in ProjectInfo.objects.filter(projectTeam=group, projectStatus=True):
+            project_team = project.projectTeam
+            project_name = project.projectName
+            project_id = project.projectID
+            project_creator = project.projectCreator
+            project_intro = project.projectIntro
+            # 日期保留到日
+            project_create_time = project.projectCreateTime.strftime('%Y-%m-%d')
+            project_doc_num = project.docNum
+            project_page_num = project.pageNum
+            user_list = []
+            for user_info in GroupMember.objects.filter(group=project_team):
+                user = user_info.user
+                user_item = {
+                    'username': user.username,
+                    'isCreator': user_info.isCreator,
+                    'isManager': user_info.isManager,
+                }
+                user_list.append(user_item)
+            project_list.append({'projectName': project_name, 'projectID': project_id,
+                                 'teamName': project_team.groupName, 'creator': project_creator.username,
+                                 'projectIntro': project_intro, 'projectCreateTime': project_create_time,
+                                 'docNum': project_doc_num, 'pageNum': project_page_num,
+                                 'groupMember': user_list})
+        return JsonResponse({'error': 0, 'msg': "查询成功", 'project_list': project_list})
+
+    else:
+        return JsonResponse({'error': 2001, 'msg': "请求方式错误"})

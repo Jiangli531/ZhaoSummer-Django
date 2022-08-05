@@ -17,4 +17,5 @@ urlpatterns = [
     path('destroyProject/', destroy_project),
     path('viewAxure/', view_Axure),
     path('confirmAuthority/', confirm_Authority),
+    path('viewRecycle/', view_recycle_project),
 ]

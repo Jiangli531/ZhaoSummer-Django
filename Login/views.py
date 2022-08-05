@@ -74,7 +74,7 @@ def login(request):
         if login_form.is_valid():
             username = login_form.cleaned_data.get('username')
             password = login_form.cleaned_data.get('password')
-            print(username)
+            # print(username)
             try:
                 user = UserInfo.objects.get(username=username)
             except:
@@ -108,7 +108,7 @@ def user_confirm(request):
         try:
             confirm = ConfirmString.objects.get(code=code)
         except:
-            return JsonResponse({'error': 4001, 'msg': '校验码不存在,确认失败'})
+            return JsonResponse({'error': 4001, 'msg': '校验码不存在,验证失败'})
 
         c_time = confirm.c_time.replace(tzinfo=pytz.UTC)
         now = datetime.datetime.now().replace(tzinfo=pytz.UTC)

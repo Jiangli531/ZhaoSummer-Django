@@ -13,7 +13,7 @@ class ProjectInfo(models.Model):
     projectStatus = models.BooleanField(default=False)  # False代表未被删除，True代表已经放入了回收站
     projectCreator = models.ForeignKey(UserInfo, on_delete=models.CASCADE)
     projectCreateTime = models.DateTimeField(auto_now=True)
-    docNum = models.IntegerField(default=0)
+    docNum = models.IntegerField(default=1)
     pageNum = models.IntegerField(default=0)
 
 

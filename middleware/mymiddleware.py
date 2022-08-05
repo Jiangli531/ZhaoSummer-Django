@@ -14,7 +14,7 @@ class MWare(MiddlewareMixin):
         # print(url)
         # print(re.findall(r'login/', url))
         # print(re.findall(r'register/', url))
-        if re.findall(r'login/', url) or re.findall(r'register/', url):
+        if re.findall(r'login/', url) or re.findall(r'register/', url) or re.findall(r'confirm/', url):
             return
 
         if username and token:

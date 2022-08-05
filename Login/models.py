@@ -7,7 +7,7 @@ class UserInfo(models.Model):
     username = models.CharField(max_length=128, unique=True)
     userpassword = models.CharField(max_length=128)
     useremail = models.EmailField(unique=True)
-    realName = models.CharField(max_length=128, unique=True)
+    realName = models.CharField(max_length=128)
     has_confirmed = models.BooleanField(default=False)
 
     def __str__(self):
