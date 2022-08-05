@@ -135,6 +135,8 @@ def rename_project(request):
             return JsonResponse({'error': 4003, 'msg': "项目不存在"})
         if ProjectInfo.objects.filter(projectName=project_name, projectTeam=team).exists():
             if GroupMember.objects.filter(group=team, user=user).exists():
+                if ProjectInfo.objects.filter(projectName=project_new_name, projectTeam=team).exists():
+                    return JsonResponse({'error': 4006, 'msg': "项目名称重复！"})
                 project.projectName = project_new_name
                 project.save()
                 return JsonResponse({'error': 0, 'msg': "重命名成功"})
