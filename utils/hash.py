@@ -1,7 +1,7 @@
 import hashlib
 
 
-def hash_code(s, salt='ZhaoSummer'):  # generate s+salt into hash_code (default: salt=online publish)
+def hash_code(s, salt='ZhaoSummer'):  # generate s+salt into hash_code
     h = hashlib.sha256()
     s += salt
     h.update(s.encode())  # update method get bytes(type)

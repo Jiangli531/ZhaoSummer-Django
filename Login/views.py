@@ -8,6 +8,7 @@ from Login.form import RegisterForm, LoginForm, ForgetPwdForm, DetailInfoForm
 from Login.models import UserInfo
 from ZhaoSummer_Django.settings import EMAIL_FROM
 from utils.hash import *
+from utils.security import DesSecret
 from utils.send import *
 from utils.token import create_token
 from django.views.decorators.csrf import csrf_exempt
@@ -85,12 +86,14 @@ def login(request):
                     return JsonResponse({'error': 4004, 'msg': '用户未验证，请先进行邮箱验证'})
 
                 token = create_token(username)
+                # ID加密
+                DS = DesSecret()
                 return JsonResponse({
                     'error': 0,
                     'msg': "登录成功",
                     'username': user.username,
                     'authorization': token,
-                    'userID': user.userID,
+                    'userID': DS.des_en(str(user.userID).encode()),
                     'email': user.useremail,
                     'realName': user.realName,
                 })

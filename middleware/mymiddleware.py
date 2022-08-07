@@ -23,4 +23,4 @@ class MWare(MiddlewareMixin):
             else:  # token验证失败
                 return JsonResponse({'error': 4002, 'msg': '登陆信息过期，请重新登录'})
         else:
-            return JsonResponse({'error': 4001, 'msg': '未携带认证信息！'})
+            return JsonResponse({'error': 4001, 'msg': '未携带登录认证信息！'})
