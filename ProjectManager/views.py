@@ -630,6 +630,8 @@ def copy_project(request):
             project = ProjectInfo.objects.get(projectID=projectID)
         except:
             return JsonResponse({'error': 4001, 'msg': "项目不存在"})
+        if project.projectStatus:
+            return JsonResponse({'error': 4001, 'msg': "项目不存在"})
         new_project = ProjectInfo()
         new_project.projectName = project.projectName + "_副本"
         new_project.projectTeam = project.projectTeam
