@@ -217,5 +217,5 @@ def userinfo_view(request):
             user = UserInfo.objects.get(userID=userID)
         except:
             return JsonResponse({'error': 4001, 'msg': '用户不存在'})
-        return JsonResponse({'error': 0, 'msg': '查询成功', 'data': {'userID': user.userID, 'username': user.username, 'useremail': user.useremail,'realName':user.realName}})
+        return JsonResponse({'error': 0, 'msg': '查询成功', 'data': {'userID': user.userID, 'userName': user.username,'userPassword':user.userpassword, 'userEmail': user.useremail,'realName':user.realName}})
     return JsonResponse({'error': 2001, 'msg': '请求方式错误！'})
