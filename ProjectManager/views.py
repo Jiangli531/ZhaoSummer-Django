@@ -6,10 +6,12 @@ from django.http import JsonResponse
 from django.shortcuts import render
 
 # Create your views here.
+from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from Login.models import UserInfo
 from TeamManager.models import *
 from ProjectManager.models import *
+from DocsEdit.models import *
 
 
 @csrf_exempt
@@ -616,6 +618,70 @@ def order_project_by_time_up(request):
             return JsonResponse({'error': 0, '+projectListOrderByTime': json.dumps(project_list, ensure_ascii=False)})
         else:
             return JsonResponse({'error': 4002, 'msg': "团队无项目"})
+    else:
+        return JsonResponse({'error': 2001, 'msg': "请求方式错误"})
+
+
+@csrf_exempt
+def copy_project(request):
+    if request.method == 'POST':
+        projectID = request.POST.get('projectID')
+        try:
+            project = ProjectInfo.objects.get(projectID=projectID)
+        except:
+            return JsonResponse({'error': 4001, 'msg': "项目不存在"})
+        new_project = ProjectInfo()
+        new_project.projectName = project.projectName + "_副本"
+        new_project.projectTeam = project.projectTeam
+        new_project.projectIntro = project.projectIntro
+        new_project.projectCreator = project.projectCreator
+        new_project.save()
+
+        docs_belong = Document.objects.filter(project=project)
+        umls_belong = UMLInfo.objects.filter(umlProject=project)
+        pages_belong = PageInfo.objects.filter(pageProject=project)
+
+        if docs_belong:
+            for document in docs_belong:
+                new_document = Document()
+                new_document.title = document.title
+                new_document.creator = document.creator
+                new_document.created_time = timezone.now()
+                new_document.modified_time = timezone.now()
+                new_document.content = document.content
+                new_document.docRight = document.docRight
+                new_document.recycled = document.recycled
+                new_document.isOccupied = document.isOccupied
+                new_document.group = document.group
+                new_document.project = new_project
+                new_document.save()
+
+        if umls_belong:
+            for uml in umls_belong:
+                new_uml = UMLInfo()
+                new_uml.umlName = uml.umlName
+                new_uml.umlPath = uml.umlPath
+                new_uml.umlCreator = uml.umlCreator
+                new_uml.umlProject = new_project
+                new_uml.save()
+
+        if pages_belong:
+            for page in pages_belong:
+                new_page = PageInfo()
+                new_page.pageName = page.pageName
+                new_page.pageContent = page.pageContent
+                new_page.pageCreator = page.pageCreator
+                new_page.pageProject = new_project
+                new_page.save()
+
+                page_editors = PageEditor.objects.filter(page=page)
+                if page_editors:
+                    for editor in page_editors:
+                        new_page_editor = PageEditor()
+                        new_page_editor.page = new_page
+                        new_page_editor.Editor = editor
+                        new_page_editor.save()
+        return JsonResponse({'error': 0, 'msg': "复制成功"})
     else:
         return JsonResponse({'error': 2001, 'msg': "请求方式错误"})
 

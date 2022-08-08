@@ -29,4 +29,5 @@ urlpatterns = [
     path('viewCollect/', get_collect_project_list),
     path('viewRecentProject/', getRecentProject),
     path('projectClick/', click_project),
+    path('projectCopy/', copy_project),
 ]
