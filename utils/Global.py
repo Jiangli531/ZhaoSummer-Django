@@ -11,7 +11,7 @@ class db:
     host = '43.138.86.76'
     user = 'buaa'
     passwd = 'ZhaoZhao1234.'  # 修改为您本地或远程的 mysql数据库信息
-    db = 'ZhaoSummer2'
+    db = 'ZhaoSummer3'
 
 
 # class host:  # 修改为django允许运行的网址

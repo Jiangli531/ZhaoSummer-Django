@@ -26,10 +26,10 @@ def viewDocList(request):
             data = []
             for c in doc_list:
                 ret = {
-                    'docID': c.id,
+                    'docID': c.docId,
                     'title': c.title,
                     'creatorID': c.creator.userID,
-                    'perm': c.doc_right,
+                    'perm': c.docRight,
                     'modified_date': c.modified_time.strftime('%Y-%m-%d %H:%M:%S')
                 }
                 data.append(ret)
@@ -47,9 +47,15 @@ def createDocument(request):
         userid = request.POST.get('userID')
         projectid = request.POST.get('projectID')
         title = request.POST.get('title')
+        groupid=request.POST.get('groupID')
+        group=Group.objects.filter(groupId=groupid).first()
         if userid:
             user = UserInfo.objects.filter(userID=userid).first()
-            project = ProjectInfo.objects.filter(projectID=projectid).first()
+            try:
+                project = ProjectInfo.objects.get(projectID=projectid)
+            except:
+                return JsonResponse({'errno': 1004, 'msg': "项目不存在"})
+
             doc = Document.objects.filter(title=title, project=project).first()
             if doc:
                 return JsonResponse({'errno': 1003, 'msg': "文件名已存在"})
@@ -59,8 +65,16 @@ def createDocument(request):
             document.content = request.POST.get('content')
             document.created_time = timezone.now()
             document.modified_time = timezone.now()
+            document.project=project
+            document.group=group
             document.save()
-            return JsonResponse({'errno': 0, 'msg': "创建成功"})
+            project.docNum += 1
+            project.save()
+            ret={
+                'docID':document.docId,
+                'title':document.title,
+            }
+            return JsonResponse({'errno': 0, 'data': ret})
         else:
             return JsonResponse({'errno': 1002, 'msg': "用户未登录"})
     else:
@@ -116,6 +130,8 @@ def recycleDoc(request):
             doc = Document.objects.get(docID=doc_id)
             doc.recycled = True
             doc.save()
+            doc.project.docNum -= 1
+            doc.project.save()
             return JsonResponse({'errno': 0, 'msg': "回收成功"})
     else:
         return JsonResponse({'errno': 1001, 'msg': "请求方式错误"})

@@ -16,5 +16,5 @@ class Document(models.Model):
     docRight = models.IntegerField(default=1)
     recycled = models.BooleanField(default=False)
     isOccupied = models.IntegerField(null=True)
-    group = models.ForeignKey(Group, on_delete=models.CASCADE)
+    group = models.ForeignKey(Group, on_delete=models.CASCADE,null=True)
     project = models.ForeignKey(ProjectInfo, on_delete=models.CASCADE)

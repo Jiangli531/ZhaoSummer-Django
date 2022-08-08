@@ -8,6 +8,7 @@ from Login.form import RegisterForm, LoginForm, ForgetPwdForm, DetailInfoForm
 from Login.models import UserInfo
 from ZhaoSummer_Django.settings import EMAIL_FROM
 from utils.hash import *
+from utils.security import DesSecret
 from utils.send import *
 from utils.token import create_token
 from django.views.decorators.csrf import csrf_exempt
@@ -74,7 +75,7 @@ def login(request):
         if login_form.is_valid():
             username = login_form.cleaned_data.get('username')
             password = login_form.cleaned_data.get('password')
-            print(username)
+            # print(username)
             try:
                 user = UserInfo.objects.get(username=username)
             except:
@@ -85,12 +86,14 @@ def login(request):
                     return JsonResponse({'error': 4004, 'msg': '用户未验证，请先进行邮箱验证'})
 
                 token = create_token(username)
+                # ID加密
+                DS = DesSecret()
                 return JsonResponse({
                     'error': 0,
                     'msg': "登录成功",
                     'username': user.username,
                     'authorization': token,
-                    'userID': user.userID,
+                    'userID': DS.des_en(str(user.userID).encode()),
                     'email': user.useremail,
                     'realName': user.realName,
                 })
@@ -108,7 +111,7 @@ def user_confirm(request):
         try:
             confirm = ConfirmString.objects.get(code=code)
         except:
-            return JsonResponse({'error': 4001, 'msg': '校验码不存在,确认失败'})
+            return JsonResponse({'error': 4001, 'msg': '校验码不存在,验证失败'})
 
         c_time = confirm.c_time.replace(tzinfo=pytz.UTC)
         now = datetime.datetime.now().replace(tzinfo=pytz.UTC)
@@ -137,7 +140,7 @@ def forget_pwd(request):
                 email_title = "找回密码"
                 code = random_str()  # 随机生成的验证码
                 request.session["code"] = code  # 将验证码保存到session
-                email_body = "Hello!这里是短视频分享网站，你收到这封邮件是因为你正在请求更改密码！如果你没有，请忽视这封邮件！\n你的验证码为：{0}".format(code)
+                email_body = "Hello!这里是《墨书》，你收到这封邮件是因为你正在请求更改密码！如果你没有，请忽视这封邮件！\n你的验证码为：{0}".format(code)
                 send_status = send_mail(email_title, email_body, EMAIL_FROM, [register_email])
                 if send_status:
                     msg = "验证码已发送，请查收邮件"
@@ -157,7 +160,10 @@ def update_pwd(request):
     if request.method == 'POST':
         register_email = request.POST.get("useremail")
         password = request.POST.get("password")
-        user = UserInfo.objects.get(useremail=register_email)
+        try:
+            user = UserInfo.objects.get(useremail=register_email)
+        except:
+            return JsonResponse({'error': 4003, 'msg': '邮箱不存在'})
         code = request.POST.get("code")  # 获取传递过来的验证码
         if code == request.session["code"]:
             if not re.match('^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{8,18}$', password):

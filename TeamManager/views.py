@@ -12,11 +12,15 @@ from TeamManager.models import *
 from ZhaoSummer_Django.settings import EMAIL_FROM
 from utils.send import *
 from email.mime.text import MIMEText
+from utils.security import DesSecret
+
 
 @csrf_exempt
 def group_build(request):
     if request.method == 'POST':
+        DS = DesSecret()
         creatorid = request.POST.get('creatorID')
+        creatorid = DS.des_de(creatorid)
         group_name = request.POST.get('groupName')
         description = request.POST.get('description')
         try:
@@ -26,7 +30,7 @@ def group_build(request):
         Group.objects.create(groupName=group_name, creator=creator, description=description)
         new_group = Group.objects.get(groupName=group_name, creator=creator, description=description)
         GroupMember.objects.create(group=new_group, user=creator, isCreator=True, isManager=True)
-        return JsonResponse({'error': 0, 'msg': "团队创建成功", 'groupID': new_group.groupId})
+        return JsonResponse({'error': 0, 'msg': "团队创建成功", 'groupID': DS.des_en(str(new_group.groupId).encode())})
     else:
         return JsonResponse({'error': 2001, 'msg': "请求方式错误"})
 
@@ -34,9 +38,12 @@ def group_build(request):
 @csrf_exempt
 def add_member(request):
     if request.method == 'POST':
+        DS = DesSecret()
         hostID = request.POST.get('hostID')  # 邀请人ID
+        hostID = DS.des_de(hostID)
         username = request.POST.get('inviteName')
         groupID = request.POST.get('groupID')
+        groupID = DS.des_de(groupID)
 
         try:
             host = UserInfo.objects.get(userID=hostID)
@@ -275,9 +282,13 @@ def add_member(request):
 @csrf_exempt
 def delete_member(request):
     if request.method == 'POST':
+        DS = DesSecret()
         hostID = request.POST.get('hostID')  # 操作者ID
+        hostID = DS.des_de(hostID)
+
         delete_name = request.POST.get('name')  # 被删除者名字
         groupID = request.POST.get('groupID')
+        groupID = DS.des_de(groupID)
 
         try:
             host = UserInfo.objects.get(userID=hostID)
@@ -310,9 +321,12 @@ def delete_member(request):
 @csrf_exempt
 def add_manager(request):
     if request.method == 'POST':
+        DS = DesSecret()
         hostID = request.POST.get('hostID')  # 操作者ID
+        hostID = DS.des_de(hostID)
         add_name = request.POST.get('name')  # 被操作者name
         groupID = request.POST.get('groupID')
+        groupID = DS.des_de(groupID)
 
         try:
             host = UserInfo.objects.get(userID=hostID)
@@ -343,12 +357,16 @@ def add_manager(request):
     else:
         return JsonResponse({'error': 2001, 'msg': '请求方式错误'})
 
+
 @csrf_exempt
 def delete_manger(request):
     if request.method == 'POST':
+        DS = DesSecret()
         hostID = request.POST.get('hostID')  # 操作者ID
+        hostID = DS.des_de(hostID)
         delete_name = request.POST.get('name')  # 被操作者name
         groupID = request.POST.get('groupID')
+        groupID = DS.des_de(groupID)
 
         try:
             host = UserInfo.objects.get(userID=hostID)
@@ -383,7 +401,9 @@ def delete_manger(request):
 @csrf_exempt
 def get_member_info(request):
     if request.method == 'POST':
+        DS = DesSecret()
         groupID = request.POST.get('groupID')
+        groupID = DS.des_de(groupID)
 
         try:
             group = Group.objects.get(groupId=groupID)
@@ -406,7 +426,7 @@ def get_member_info(request):
                 'isManager': groupMember.isManager,
                 'isCreator': groupMember.isCreator,
                 'level': level,
-                'userID': member.userID,
+                'userID': DS.des_en(member.userID.encode()),
             }
             member_list.append(member_item)
         return JsonResponse({'error': 0, 'member_list': member_list})
@@ -417,8 +437,9 @@ def get_member_info(request):
 @csrf_exempt
 def get_group_info(request):
     if request.method == 'POST':
+        DS = DesSecret()
         userID = request.POST.get('userID')
-
+        userID = DS.des_de(userID)
         try:
             user = UserInfo.objects.get(userID=userID)
         except:
@@ -430,7 +451,7 @@ def get_group_info(request):
             group = groupMember.group
             group_item = {
                 'groupName': group.groupName,
-                'groupID': group.groupId,
+                'groupID': DS.des_en(group.groupId.encode()),
                 'groupMemberNum:': group.memberNum,
                 'isCreator': groupMember.isCreator,
                 'isManager': groupMember.isManager,
@@ -443,10 +464,13 @@ def get_group_info(request):
     else:
         return JsonResponse({'error': 2001, 'msg': '请求方式错误'})
 
+
 @csrf_exempt
 def group_view_project(request):
     if request.method == 'POST':
+        DS = DesSecret()
         group_id = request.POST.get('groupID')
+        group_id = DS.des_de(group_id)
         try:
             group = Group.objects.get(groupId=group_id)
         except:
@@ -458,7 +482,8 @@ def group_view_project(request):
             project_id = project.projectID
             project_creator = project.projectCreator
             project_intro = project.projectIntro
-            project_create_time = project.projectCreateTime
+            #日期保留到日
+            project_create_time = project.projectCreateTime.strftime('%Y-%m-%d')
             project_doc_num = project.docNum
             project_page_num = project.pageNum
             user_list = []
@@ -470,7 +495,7 @@ def group_view_project(request):
                     'isManager': user_info.isManager,
                 }
                 user_list.append(user_item)
-            project_list.append({'projectName': project_name,'projectID': project_id,
+            project_list.append({'projectName': project_name,'projectID': DS.des_en(str(project_id).encode()),
                              'teamName': project_team.groupName, 'creator': project_creator.username,
                              'projectIntro': project_intro, 'projectCreateTime': project_create_time,'docNum':project_doc_num,'pageNum':project_page_num,
                              'groupMember': user_list})

@@ -14,7 +14,7 @@ class MWare(MiddlewareMixin):
         # print(url)
         # print(re.findall(r'login/', url))
         # print(re.findall(r'register/', url))
-        if re.findall(r'login/', url) or re.findall(r'register/', url):
+        if re.findall(r'login/', url) or re.findall(r'register/', url) or re.findall(r'confirm/', url):
             return
 
         if username and token:
@@ -23,4 +23,4 @@ class MWare(MiddlewareMixin):
             else:  # token验证失败
                 return JsonResponse({'error': 4002, 'msg': '登陆信息过期，请重新登录'})
         else:
-            return JsonResponse({'error': 4001, 'msg': '未携带认证信息！'})
+            return JsonResponse({'error': 4001, 'msg': '未携带登录认证信息！'})

@@ -25,6 +25,8 @@ def create_project(request):
             team = Group.objects.get(groupId=project_teamID)
         except:
             return JsonResponse({'error': 4002, 'msg': "团队不存在"})
+        if ProjectInfo.objects.filter(projectName=project_name, projectTeam=team).exists():
+            return JsonResponse({'error': 4004, 'msg': '项目名称重复啦！'})
         # print(project_name)
         # print(project_intro)
         # print(project_teamID)
@@ -79,13 +81,14 @@ def delete_project(request):
 @csrf_exempt
 def view_project(request):
     if request.method == 'POST':
-        project_name = request.POST.get('projectName')
+        projectID = request.POST.get('projectID')
         try:
-            project = ProjectInfo.objects.get(projectName=project_name)
+            project = ProjectInfo.objects.get(projectID=projectID)
         except:
             return JsonResponse({'error': 4001, 'msg': "项目不存在"})
         if project.projectStatus:
             return JsonResponse({'error': 4001, 'msg': "项目不存在"})
+        project_name = project.projectName
         project_team = project.projectTeam
         project_id = project.projectID
         project_creator = project.projectCreator
@@ -134,6 +137,8 @@ def rename_project(request):
             return JsonResponse({'error': 4003, 'msg': "项目不存在"})
         if ProjectInfo.objects.filter(projectName=project_name, projectTeam=team).exists():
             if GroupMember.objects.filter(group=team, user=user).exists():
+                if ProjectInfo.objects.filter(projectName=project_new_name, projectTeam=team).exists():
+                    return JsonResponse({'error': 4006, 'msg': "项目名称重复！"})
                 project.projectName = project_new_name
                 project.save()
                 return JsonResponse({'error': 0, 'msg': "重命名成功"})
@@ -165,7 +170,9 @@ def create_page(request):
             return JsonResponse({'error': 4003, 'msg': "页面已存在"})
         page=PageInfo(pageName=axureName,pageProject=project, pageCreator=user)
         page.save()
-        return JsonResponse({'error': 0, 'msg': "创建成功"})
+        project.pageNum += 1
+        project.save()
+        return JsonResponse({'error': 0, 'msg': "创建成功", 'pageID': page.pageID})
     else:
         return JsonResponse({'error': 2001, 'msg': "请求方式错误"})
 
@@ -175,13 +182,15 @@ def save_page(request):
     if request.method == 'POST':
         axureID=request.POST.get('axureID')
         axureData=request.POST.get('axureData')
-        page=PageInfo.objects.filter(pageID=axureID)
-        if page:
-            page.pageContent=axureData
-            page.save()
-            return JsonResponse({'error': 0, 'msg': "保存成功"})
-        else:
-            return JsonResponse({'error': 4003, 'msg': "页面不存在"})
+
+        try:
+            page=PageInfo.objects.get(pageID=axureID)
+        except:
+            return JsonResponse({'error': 4001, 'msg': "原型不存在"})
+
+        page.pageContent=axureData
+        page.save()
+        return JsonResponse({'error': 0, 'msg': "保存成功"})
     else:
         return JsonResponse({'error': 2001, 'msg': "请求方式错误"})
 
@@ -297,6 +306,93 @@ def destroy_project(request):
         return JsonResponse({'error': 2001, 'msg': "请求方式错误"})
 
 
+@csrf_exempt
+def view_Axure(request):
+    if request.method == 'POST':
+        axureID = request.POST.get('axureID')
+
+        try:
+            axure = PageInfo.objects.get(pageID=axureID)
+        except:
+            return JsonResponse({'error': 4001, 'msg': '未查找到原型！'})
+
+        return JsonResponse({
+            'error': 0,
+            'msg': '查询成功',
+            'axureID': axureID,
+            'axureName': axure.pageName,
+            'creatorID': axure.pageCreator.userID,
+            'axureContent': axure.pageContent,
+            'axureCreateTime': axure.pageCreateTime,
+        })
+
+    else:
+        return JsonResponse({'error': 2001, 'msg': '请求方式错误'})
+
+
+@csrf_exempt
+def confirm_Authority(request):
+    if request.method == 'POST':
+        projectID = request.POST.get('projectID')
+        userID = request.POST.get('userID')
+
+        try:
+            project = ProjectInfo.objects.get(projectID=projectID)
+        except:
+            return JsonResponse({'error': 4001, 'msg': '项目不存在!'})
+        try:
+            user = UserInfo.objects.get(userID=userID)
+        except:
+            return JsonResponse({'error': 4002, 'msg': '用户不存在!'})
+
+        authority = False
+
+        # 如果用户在团队中，则对该项目有编辑权限
+        if GroupMember.objects.filter(group=project.projectTeam, user=user).exists():
+            authority = True
+
+        return JsonResponse({'error': 0, 'msg': '查询成功', 'authority': authority})
+    else:
+        return JsonResponse({'error': 2001, 'msg': '请求方式错误'})
+
+
+@csrf_exempt
+def view_recycle_project(request):
+    if request.method == 'POST':
+        group_id = request.POST.get('groupID')
+        try:
+            group = Group.objects.get(groupId=group_id)
+        except:
+            return JsonResponse({'error': 4001, 'msg': "团队不存在"})
+        project_list = []
+        for project in ProjectInfo.objects.filter(projectTeam=group, projectStatus=True):
+            project_team = project.projectTeam
+            project_name = project.projectName
+            project_id = project.projectID
+            project_creator = project.projectCreator
+            project_intro = project.projectIntro
+            # 日期保留到日
+            project_create_time = project.projectCreateTime.strftime('%Y-%m-%d')
+            project_doc_num = project.docNum
+            project_page_num = project.pageNum
+            user_list = []
+            for user_info in GroupMember.objects.filter(group=project_team):
+                user = user_info.user
+                user_item = {
+                    'username': user.username,
+                    'isCreator': user_info.isCreator,
+                    'isManager': user_info.isManager,
+                }
+                user_list.append(user_item)
+            project_list.append({'projectName': project_name, 'projectID': project_id,
+                                 'teamName': project_team.groupName, 'creator': project_creator.username,
+                                 'projectIntro': project_intro, 'projectCreateTime': project_create_time,
+                                 'docNum': project_doc_num, 'pageNum': project_page_num,
+                                 'groupMember': user_list})
+        return JsonResponse({'error': 0, 'msg': "查询成功", 'project_list': project_list})
+
+    else:
+        return JsonResponse({'error': 2001, 'msg': "请求方式错误"})
 @csrf_exempt
 def search_project(request):
     if request.method == 'POST':
