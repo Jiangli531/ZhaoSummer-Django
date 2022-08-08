@@ -1,3 +1,5 @@
+import json
+
 from datetime import datetime
 
 from django.http import JsonResponse
@@ -560,5 +562,146 @@ def click_project(request):
             return JsonResponse({'error': 4003, 'msg': "项目不存在"})
         ProjectUser.objects.create(project=project, user=user, last_watch=datetime.now())
         return JsonResponse({'error': 0, 'msg': "点击成功"})
+    else:
+        return JsonResponse({'error': 2001, 'msg': "请求方式错误"})
+@csrf_exempt
+def search_project(request):
+    if request.method == 'POST':
+        search_key = request.POST.get('key')
+        if search_key:
+            project_results = ProjectInfo.objects.filter(projectName__icontains=search_key, projectStatus=False)
+            if not project_results:
+                return JsonResponse({'error': 4001, 'msg': "没有搜索到项目"})
+            else:
+                project_list = []
+                for project in project_results:
+                    project_item = {
+                        'projectID': project.projectID,
+                        'projectName': project.projectName,
+                        'projectTeam': project.projectTeam.groupName,
+                        'projectIntro': project.projectIntro,
+                        'projectCreator': project.projectCreator.username,
+                        'projectCreateTime': project.projectCreateTime.strftime('%Y-%m-%d'),
+                    }
+                    project_list.append(project_item)
+                return JsonResponse({'error': 0, 'projectList': json.dumps(project_list, ensure_ascii=False)})
+        else:
+            return JsonResponse({'error': 4002, 'msg': "搜索内容不能为空"})
+    else:
+        return JsonResponse({'error': 2001, 'msg': "请求方式错误"})
+
+
+@csrf_exempt
+def order_project_by_time_up(request):
+    if request.method == 'POST':
+        teamID = request.POST.get('teamID')
+        try:
+            team = Group.objects.get(groupId=teamID)
+        except:
+            return JsonResponse({'error': 4001, 'msg': "团队不存在"})
+        project_list_origin = ProjectInfo.objects.filter(projectTeam=team, projectStatus=False).order_by('projectCreateTime')
+        if project_list_origin:
+            #project_list_origin.order_by('projectCreateTime')
+            project_list = []
+            for project in project_list_origin:
+                project_item = {
+                    'projectID': project.projectID,
+                    'projectName': project.projectName,
+                    'projectTeam': project.projectTeam.groupName,
+                    'projectIntro': project.projectIntro,
+                    'projectCreator': project.projectCreator.username,
+                    'projectCreateTime': project.projectCreateTime.strftime('%Y-%m-%d'),
+                }
+                project_list.append(project_item)
+            return JsonResponse({'error': 0, '+projectListOrderByTime': json.dumps(project_list, ensure_ascii=False)})
+        else:
+            return JsonResponse({'error': 4002, 'msg': "团队无项目"})
+    else:
+        return JsonResponse({'error': 2001, 'msg': "请求方式错误"})
+
+
+@csrf_exempt
+def order_project_by_time_down(request):
+    if request.method == 'POST':
+        teamID = request.POST.get('teamID')
+        try:
+            team = Group.objects.get(groupId=teamID)
+        except:
+            return JsonResponse({'error': 4001, 'msg': "团队不存在"})
+        project_list_origin = ProjectInfo.objects.filter(projectTeam=team, projectStatus=False).order_by('-projectCreateTime')
+        if project_list_origin:
+            #project_list_origin.order_by('-projectCreateTime')
+            project_list = []
+            for project in project_list_origin:
+                project_item = {
+                    'projectID': project.projectID,
+                    'projectName': project.projectName,
+                    'projectTeam': project.projectTeam.groupName,
+                    'projectIntro': project.projectIntro,
+                    'projectCreator': project.projectCreator.username,
+                    'projectCreateTime': project.projectCreateTime.strftime('%Y-%m-%d'),
+                }
+                project_list.append(project_item)
+            return JsonResponse({'error': 0, '-projectListOrderByTime': json.dumps(project_list, ensure_ascii=False)})
+        else:
+            return JsonResponse({'error': 4002, 'msg': "团队无项目"})
+    else:
+        return JsonResponse({'error': 2001, 'msg': "请求方式错误"})
+
+
+@csrf_exempt
+def order_project_by_name_up(request):
+    if request.method == 'POST':
+        teamID = request.POST.get('teamID')
+        try:
+            team = Group.objects.get(groupId=teamID)
+        except:
+            return JsonResponse({'error': 4001, 'msg': "团队不存在"})
+        project_list_origin = ProjectInfo.objects.filter(projectTeam=team, projectStatus=False).order_by('projectName')
+        if project_list_origin:
+            #project_list_origin.order_by('projectName')
+            project_list = []
+            for project in project_list_origin:
+                project_item = {
+                    'projectID': project.projectID,
+                    'projectName': project.projectName,
+                    'projectTeam': project.projectTeam.groupName,
+                    'projectIntro': project.projectIntro,
+                    'projectCreator': project.projectCreator.username,
+                    'projectCreateTime': project.projectCreateTime.strftime('%Y-%m-%d'),
+                }
+                project_list.append(project_item)
+            return JsonResponse({'error': 0, '+projectListOrderByName': json.dumps(project_list, ensure_ascii=False)})
+        else:
+            return JsonResponse({'error': 4002, 'msg': "团队无项目"})
+    else:
+        return JsonResponse({'error': 2001, 'msg': "请求方式错误"})
+
+
+@csrf_exempt
+def order_project_by_name_down(request):
+    if request.method == 'POST':
+        teamID = request.POST.get('teamID')
+        try:
+            team = Group.objects.get(groupId=teamID)
+        except:
+            return JsonResponse({'error': 4001, 'msg': "团队不存在"})
+        project_list_origin = ProjectInfo.objects.filter(projectTeam=team, projectStatus=False).order_by('-projectName')
+        if project_list_origin:
+           # project_list_origin.order_by('-projectName')
+            project_list = []
+            for project in project_list_origin:
+                project_item = {
+                    'projectID': project.projectID,
+                    'projectName': project.projectName,
+                    'projectTeam': project.projectTeam.groupName,
+                    'projectIntro': project.projectIntro,
+                    'projectCreator': project.projectCreator.username,
+                    'projectCreateTime': project.projectCreateTime.strftime('%Y-%m-%d'),
+                }
+                project_list.append(project_item)
+            return JsonResponse({'error': 0, '-projectListOrderByName': json.dumps(project_list, ensure_ascii=False)})
+        else:
+            return JsonResponse({'error': 4002, 'msg': "团队无项目"})
     else:
         return JsonResponse({'error': 2001, 'msg': "请求方式错误"})
