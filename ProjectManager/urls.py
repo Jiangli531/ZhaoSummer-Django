@@ -30,4 +30,5 @@ urlpatterns = [
     path('viewRecentProject/', getRecentProject),
     path('projectClick/', click_project),
     path('projectCopy/', copy_project),
+    path('isCollect/', is_collect),
 ]

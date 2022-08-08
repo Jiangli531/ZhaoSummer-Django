@@ -11,4 +11,5 @@ urlpatterns = [
     path('forget/', forget_pwd),
     path('update/', update_pwd),
     path('editUserInfo/', userinfo_edit),
+    path('viewUser/', userinfo_view),
 ]

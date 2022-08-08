@@ -477,6 +477,8 @@ def get_collect_project_list(request):
         project_list = []
         for project in ProjectCollect.objects.filter(user=user):
             project = project.project
+            if project.projectStatus==True:
+                continue
             project_name = project.projectName
             project_id = project.projectID
             project_creator = project.projectCreator
@@ -519,6 +521,8 @@ def getRecentProject(request):
                 if count >= 10:
                     break
                 project=c.project
+                if project.projectStatus == True:
+                    continue
                 project_name = project.projectName
                 project_id = project.projectID
                 project_creator = project.projectCreator
@@ -564,6 +568,28 @@ def click_project(request):
             return JsonResponse({'error': 4003, 'msg': "项目不存在"})
         ProjectUser.objects.create(project=project, user=user, last_watch=datetime.now())
         return JsonResponse({'error': 0, 'msg': "点击成功"})
+    else:
+        return JsonResponse({'error': 2001, 'msg': "请求方式错误"})
+#查看项目是否被收藏
+@csrf_exempt
+def is_collect(request):
+    if request.method == 'POST':
+        user_id = request.POST.get('userID')
+        project_id = request.POST.get('projectID')
+        try:
+            user = UserInfo.objects.get(userID=user_id)
+        except:
+            return JsonResponse({'error': 4002, 'msg': "用户不存在"})
+        try:
+            project = ProjectInfo.objects.get(projectID=project_id)
+        except:
+            return JsonResponse({'error': 4003, 'msg': "项目不存在"})
+        if project.projectStatus == True:
+            return JsonResponse({'error': 4004, 'msg': "项目已删除"})
+        if ProjectCollect.objects.filter(project=project, user=user):
+            return JsonResponse({'error': 0, 'msg': "已收藏"})
+        else:
+            return JsonResponse({'error': 1, 'msg': "未收藏"})
     else:
         return JsonResponse({'error': 2001, 'msg': "请求方式错误"})
 @csrf_exempt
