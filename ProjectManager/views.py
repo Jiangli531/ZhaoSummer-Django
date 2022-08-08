@@ -398,7 +398,7 @@ def search_project(request):
     if request.method == 'POST':
         search_key = request.POST.get('key')
         if search_key:
-            project_results = ProjectInfo.objects.filter(videoName__icontains=search_key, projectStatus=True)
+            project_results = ProjectInfo.objects.filter(projectName__icontains=search_key, projectStatus=False)
             if not project_results:
                 return JsonResponse({'error': 4001, 'msg': "没有搜索到项目"})
             else:
@@ -410,7 +410,7 @@ def search_project(request):
                         'projectTeam': project.projectTeam.groupName,
                         'projectIntro': project.projectIntro,
                         'projectCreator': project.projectCreator.username,
-                        'projectCreateTime': project.projectCreateTime,
+                        'projectCreateTime': project.projectCreateTime.strftime('%Y-%m-%d'),
                     }
                     project_list.append(project_item)
                 return JsonResponse({'error': 0, 'projectList': json.dumps(project_list, ensure_ascii=False)})
@@ -428,9 +428,9 @@ def order_project_by_time_up(request):
             team = Group.objects.get(groupId=teamID)
         except:
             return JsonResponse({'error': 4001, 'msg': "团队不存在"})
-        project_list_origin = ProjectInfo.objects.filter(projectTeam=team)
+        project_list_origin = ProjectInfo.objects.filter(projectTeam=team, projectStatus=False).order_by('projectCreateTime')
         if project_list_origin:
-            project_list_origin.order_by('projectCreateTime')
+            #project_list_origin.order_by('projectCreateTime')
             project_list = []
             for project in project_list_origin:
                 project_item = {
@@ -439,7 +439,7 @@ def order_project_by_time_up(request):
                     'projectTeam': project.projectTeam.groupName,
                     'projectIntro': project.projectIntro,
                     'projectCreator': project.projectCreator.username,
-                    'projectCreateTime': project.projectCreateTime,
+                    'projectCreateTime': project.projectCreateTime.strftime('%Y-%m-%d'),
                 }
                 project_list.append(project_item)
             return JsonResponse({'error': 0, '+projectListOrderByTime': json.dumps(project_list, ensure_ascii=False)})
@@ -457,9 +457,9 @@ def order_project_by_time_down(request):
             team = Group.objects.get(groupId=teamID)
         except:
             return JsonResponse({'error': 4001, 'msg': "团队不存在"})
-        project_list_origin = ProjectInfo.objects.filter(projectTeam=team)
+        project_list_origin = ProjectInfo.objects.filter(projectTeam=team, projectStatus=False).order_by('-projectCreateTime')
         if project_list_origin:
-            project_list_origin.order_by('-projectCreateTime')
+            #project_list_origin.order_by('-projectCreateTime')
             project_list = []
             for project in project_list_origin:
                 project_item = {
@@ -468,7 +468,7 @@ def order_project_by_time_down(request):
                     'projectTeam': project.projectTeam.groupName,
                     'projectIntro': project.projectIntro,
                     'projectCreator': project.projectCreator.username,
-                    'projectCreateTime': project.projectCreateTime,
+                    'projectCreateTime': project.projectCreateTime.strftime('%Y-%m-%d'),
                 }
                 project_list.append(project_item)
             return JsonResponse({'error': 0, '-projectListOrderByTime': json.dumps(project_list, ensure_ascii=False)})
@@ -486,9 +486,9 @@ def order_project_by_name_up(request):
             team = Group.objects.get(groupId=teamID)
         except:
             return JsonResponse({'error': 4001, 'msg': "团队不存在"})
-        project_list_origin = ProjectInfo.objects.filter(projectTeam=team)
+        project_list_origin = ProjectInfo.objects.filter(projectTeam=team, projectStatus=False).order_by('projectName')
         if project_list_origin:
-            project_list_origin.order_by('projectName')
+            #project_list_origin.order_by('projectName')
             project_list = []
             for project in project_list_origin:
                 project_item = {
@@ -497,7 +497,7 @@ def order_project_by_name_up(request):
                     'projectTeam': project.projectTeam.groupName,
                     'projectIntro': project.projectIntro,
                     'projectCreator': project.projectCreator.username,
-                    'projectCreateTime': project.projectCreateTime,
+                    'projectCreateTime': project.projectCreateTime.strftime('%Y-%m-%d'),
                 }
                 project_list.append(project_item)
             return JsonResponse({'error': 0, '+projectListOrderByName': json.dumps(project_list, ensure_ascii=False)})
@@ -515,9 +515,9 @@ def order_project_by_name_down(request):
             team = Group.objects.get(groupId=teamID)
         except:
             return JsonResponse({'error': 4001, 'msg': "团队不存在"})
-        project_list_origin = ProjectInfo.objects.filter(projectTeam=team)
+        project_list_origin = ProjectInfo.objects.filter(projectTeam=team, projectStatus=False).order_by('-projectName')
         if project_list_origin:
-            project_list_origin.order_by('-projectName')
+           # project_list_origin.order_by('-projectName')
             project_list = []
             for project in project_list_origin:
                 project_item = {
@@ -526,7 +526,7 @@ def order_project_by_name_down(request):
                     'projectTeam': project.projectTeam.groupName,
                     'projectIntro': project.projectIntro,
                     'projectCreator': project.projectCreator.username,
-                    'projectCreateTime': project.projectCreateTime,
+                    'projectCreateTime': project.projectCreateTime.strftime('%Y-%m-%d'),
                 }
                 project_list.append(project_item)
             return JsonResponse({'error': 0, '-projectListOrderByName': json.dumps(project_list, ensure_ascii=False)})

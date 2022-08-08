@@ -21,7 +21,7 @@ urlpatterns = [
     path('destroyProject/', destroy_project),
     path('searchProject/', search_project),
     path('OrderProjectByTimeUp/', order_project_by_time_up),
-    path('OrderProjectByTimedown/', order_project_by_time_down),
+    path('OrderProjectByTimeDown/', order_project_by_time_down),
     path('OrderProjectByNameUp/', order_project_by_name_up),
     path('OrderProjectByNameDown/', order_project_by_name_down),
 ]
