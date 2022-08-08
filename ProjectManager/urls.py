@@ -18,4 +18,9 @@ urlpatterns = [
     path('viewAxure/', view_Axure),
     path('confirmAuthority/', confirm_Authority),
     path('viewRecycle/', view_recycle_project),
+    path('projectCollect/', collect_project),
+    path('projectUncollect/', cancel_collect_project),
+    path('viewCollect/', get_collect_project_list),
+    path('viewRecentProject/', getRecentProject),
+    path('projectClick/', click_project),
 ]

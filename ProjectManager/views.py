@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.http import JsonResponse
 from django.shortcuts import render
 
@@ -389,5 +391,174 @@ def view_recycle_project(request):
                                  'groupMember': user_list})
         return JsonResponse({'error': 0, 'msg': "查询成功", 'project_list': project_list})
 
+    else:
+        return JsonResponse({'error': 2001, 'msg': "请求方式错误"})
+
+#收藏项目
+@csrf_exempt
+def collect_project(request):
+    if request.method == 'POST':
+        project_id = request.POST.get('projectID')
+        user_id = request.POST.get('userID')
+        group_id = request.POST.get('projectTeamID')
+        try:
+            project = ProjectInfo.objects.get(projectID=project_id)
+        except:
+            return JsonResponse({'error': 4001, 'msg': "项目不存在"})
+        try:
+            user = UserInfo.objects.get(userID=user_id)
+        except:
+            return JsonResponse({'error': 4002, 'msg': "用户不存在"})
+        try:
+            group = Group.objects.get(groupId=group_id)
+        except:
+            return JsonResponse({'error': 4003, 'msg': "团队不存在"})
+        #判断用户是否在团队中
+        try:
+            GroupMember.objects.get(group=group, user=user)
+        except:
+            return JsonResponse({'error': 4004, 'msg': "非团队成员，无权限操作"})
+        #判断是否是本团队项目
+        if project.projectTeam != group:
+            return JsonResponse({'error': 4005, 'msg': "非本团队项目，无权限操作"})
+        if ProjectCollect.objects.filter(project=project, user=user).exists():
+            return JsonResponse({'error': 4003, 'msg': "已收藏"})
+        else:
+            ProjectCollect.objects.create(project=project, user=user, collectTime=datetime.now())
+            return JsonResponse({'error': 0, 'msg': "收藏成功"})
+    else:
+        return JsonResponse({'error': 2001, 'msg': "请求方式错误"})
+#取消收藏项目
+@csrf_exempt
+def cancel_collect_project(request):
+    if request.method == 'POST':
+        project_id = request.POST.get('projectID')
+        user_id = request.POST.get('userID')
+        group_id = request.POST.get('projectTeamID')
+        try:
+            project = ProjectInfo.objects.get(projectID=project_id)
+        except:
+            return JsonResponse({'error': 4001, 'msg': "项目不存在"})
+        try:
+            user = UserInfo.objects.get(userID=user_id)
+        except:
+            return JsonResponse({'error': 4002, 'msg': "用户不存在"})
+        try:
+            group = Group.objects.get(groupId=group_id)
+        except:
+            return JsonResponse({'error': 4003, 'msg': "团队不存在"})
+        #判断用户是否在团队中
+        try:
+            GroupMember.objects.get(group=group, user=user)
+        except:
+            return JsonResponse({'error': 4004, 'msg': "非团队成员，无权限操作"})
+        #判断是否是本团队项目
+        if project.projectTeam != group:
+            return JsonResponse({'error': 4005, 'msg': "非本团队项目，无权限操作"})
+        if ProjectCollect.objects.filter(project=project, user=user).exists():
+            ProjectCollect.objects.filter(project=project, user=user).delete()
+            return JsonResponse({'error': 0, 'msg': "取消收藏成功"})
+        else:
+            return JsonResponse({'error': 4003, 'msg': "未收藏"})
+    else:
+        return JsonResponse({'error': 2001, 'msg': "请求方式错误"})
+#查询收藏项目列表
+@csrf_exempt
+def get_collect_project_list(request):
+    if request.method == 'POST':
+        try:
+            user= UserInfo.objects.get(userID=request.POST.get('userID'))
+        except:
+            return JsonResponse({'error': 4002, 'msg': "用户不存在"})
+        project_list = []
+        for project in ProjectCollect.objects.filter(user=user):
+            project = project.project
+            project_name = project.projectName
+            project_id = project.projectID
+            project_creator = project.projectCreator
+            project_intro = project.projectIntro
+            # 日期保留到日
+            project_create_time = project.projectCreateTime.strftime('%Y-%m-%d')
+            project_doc_num = project.docNum
+            project_page_num = project.pageNum
+            user_list = []
+            for user_info in GroupMember.objects.filter(group=project.projectTeam):
+                user = user_info.user
+                user_item = {
+                    'username': user.username,
+                    'isCreator': user_info.isCreator,
+                    'isManager': user_info.isManager,
+                }
+                user_list.append(user_item)
+            project_list.append({'projectName': project_name, 'projectID': project_id,
+                                 'teamName': project.projectTeam.groupName, 'creator': project_creator.username,
+                                 'projectIntro': project_intro, 'projectCreateTime': project_create_time,
+                                 'docNum': project_doc_num, 'pageNum': project_page_num,
+                                 'groupMember': user_list})
+        return JsonResponse({'error': 0, 'msg': "查询成功", 'project_list': project_list})
+    else:
+        return JsonResponse({'error': 2001, 'msg': "请求方式错误"})
+
+@csrf_exempt
+def getRecentProject(request):
+    if request.method == 'POST':
+        user_id=request.POST.get('userID')
+        try:
+            user=UserInfo.objects.get(userID=user_id)
+        except:
+            return JsonResponse({'error': 4002, 'msg': "用户不存在"})
+        pro_list=[]
+        if user_id is not None:
+            pro_user_list = ProjectUser.objects.filter(user=user).order_by('-last_watch')
+            count = 0
+            for c in pro_user_list:
+                if count >= 10:
+                    break
+                project=c.project
+                project_name = project.projectName
+                project_id = project.projectID
+                project_creator = project.projectCreator
+                project_intro = project.projectIntro
+                # 日期保留到日
+                project_create_time = project.projectCreateTime.strftime('%Y-%m-%d')
+                project_doc_num = project.docNum
+                project_page_num = project.pageNum
+                user_list = []
+                for user_info in GroupMember.objects.filter(group=project.projectTeam):
+                    user = user_info.user
+                    user_item = {
+                        'username': user.username,
+                        'isCreator': user_info.isCreator,
+                        'isManager': user_info.isManager,
+                    }
+                    user_list.append(user_item)
+                pro_list.append({'projectName': project_name, 'projectID': project_id,
+                                     'teamName': project.projectTeam.groupName, 'creator': project_creator.username,
+                                     'projectIntro': project_intro, 'projectCreateTime': project_create_time,
+                                     'docNum': project_doc_num, 'pageNum': project_page_num,
+                                     'groupMember': user_list})
+
+                count += 1
+            return JsonResponse({'errno': 0, 'data': pro_list})
+        else:
+            return JsonResponse({'errno': 1002, 'msg': "用户未登录"})
+    else:
+        return JsonResponse({'errno': 1001, 'msg': "请求方式错误"})
+
+@csrf_exempt
+def click_project(request):
+    if request.method == 'POST':
+        user_id = request.POST.get('userID')
+        project_id = request.POST.get('projectID')
+        try:
+            user = UserInfo.objects.get(userID=user_id)
+        except:
+            return JsonResponse({'error': 4002, 'msg': "用户不存在"})
+        try:
+            project = ProjectInfo.objects.get(projectID=project_id)
+        except:
+            return JsonResponse({'error': 4003, 'msg': "项目不存在"})
+        ProjectUser.objects.create(project=project, user=user, last_watch=datetime.now())
+        return JsonResponse({'error': 0, 'msg': "点击成功"})
     else:
         return JsonResponse({'error': 2001, 'msg': "请求方式错误"})
