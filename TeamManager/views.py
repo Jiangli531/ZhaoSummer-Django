@@ -449,9 +449,10 @@ def get_group_info(request):
 
         for groupMember in GroupMember.objects.filter(user=user):
             group = groupMember.group
+            strid=str(group.groupId)
             group_item = {
                 'groupName': group.groupName,
-                'groupID': DS.des_en(group.groupId.encode()),
+                'groupID': DS.des_en(strid.encode()),
                 'groupMemberNum:': group.memberNum,
                 'isCreator': groupMember.isCreator,
                 'isManager': groupMember.isManager,
