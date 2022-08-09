@@ -119,7 +119,7 @@ def view_project(request):
                 'isManager': user_info.isManager,
             }
             user_list.append(user_item)
-        return JsonResponse({'error': 0, 'msg': "查询成功", 'projectName': project_name,'projectID':project_id,
+        return JsonResponse({'error': 0, 'msg': "查询成功", 'projectName': project_name,'projectID':DS.des_en(str(project_id).encode()),
                              'teamName': project_team.groupName, 'creator': project_creator.username,
                              'projectIntro': project_intro, 'projectCreateTime': project_create_time,'docNum':project_doc_num,'pageNum':project_page_num,
                              'groupMember': user_list})
@@ -191,7 +191,7 @@ def create_page(request):
         page.save()
         project.pageNum += 1
         project.save()
-        return JsonResponse({'error': 0, 'msg': "创建成功", 'pageID': page.pageID})
+        return JsonResponse({'error': 0, 'msg': "创建成功", 'pageID': DS.des_en(str(page.pageID).encode())})
     else:
         return JsonResponse({'error': 2001, 'msg': "请求方式错误"})
 
@@ -246,9 +246,9 @@ def view_axure_list(request):
         axure_list = []
         for axure in PageInfo.objects.filter(pageProject=project):
             axure_item = {
-                'axureID': axure.pageID,
+                'axureID': DS.des_en(str(axure.pageID).encode()),
                 'axureName': axure.pageName,
-                'creatorID': axure.pageCreator.userID,
+                'creatorID': DS.des_en(str(axure.pageCreator.userID).encode()),
 
             }
             axure_list.append(axure_item)
@@ -352,9 +352,9 @@ def view_Axure(request):
         return JsonResponse({
             'error': 0,
             'msg': '查询成功',
-            'axureID': axureID,
+            'axureID': DS.des_en(str(axureID).encode()),
             'axureName': axure.pageName,
-            'creatorID': axure.pageCreator.userID,
+            'creatorID': DS.des_en(str(axure.pageCreator.userID).encode()),
             'axureContent': axure.pageContent,
             'axureCreateTime': axure.pageCreateTime,
         })
@@ -421,7 +421,7 @@ def view_recycle_project(request):
                     'isManager': user_info.isManager,
                 }
                 user_list.append(user_item)
-            project_list.append({'projectName': project_name, 'projectID': project_id,
+            project_list.append({'projectName': project_name, 'projectID': DS.des_en(str(project_id).encode()),
                                  'teamName': project_team.groupName, 'creator': project_creator.username,
                                  'projectIntro': project_intro, 'projectCreateTime': project_create_time,
                                  'docNum': project_doc_num, 'pageNum': project_page_num,
@@ -540,7 +540,7 @@ def get_collect_project_list(request):
                     'isManager': user_info.isManager,
                 }
                 user_list.append(user_item)
-            project_list.append({'projectName': project_name, 'projectID': project_id,
+            project_list.append({'projectName': project_name, 'projectID': DS.des_en(str(project_id).encode()),
                                  'teamName': project.projectTeam.groupName, 'creator': project_creator.username,
                                  'projectIntro': project_intro, 'projectCreateTime': project_create_time,
                                  'docNum': project_doc_num, 'pageNum': project_page_num,
@@ -586,7 +586,7 @@ def getRecentProject(request):
                         'isManager': user_info.isManager,
                     }
                     user_list.append(user_item)
-                pro_list.append({'projectName': project_name, 'projectID': project_id,
+                pro_list.append({'projectName': project_name, 'projectID': DS.des_en(str(project_id).encode()),
                                      'teamName': project.projectTeam.groupName, 'creator': project_creator.username,
                                      'projectIntro': project_intro, 'projectCreateTime': project_create_time,
                                      'docNum': project_doc_num, 'pageNum': project_page_num,
@@ -666,7 +666,7 @@ def search_project(request):
                 project_list = []
                 for project in project_results:
                     project_item = {
-                        'projectID': project.projectID,
+                        'projectID': DS.des_en(str(project.projectID).encode()),
                         'projectName': project.projectName,
                         'projectTeam': project.projectTeam.groupName,
                         'projectIntro': project.projectIntro,
@@ -796,7 +796,7 @@ def order_project_by_time_down(request):
             project_list = []
             for project in project_list_origin:
                 project_item = {
-                    'projectID': project.projectID,
+                    'projectID': DS.des_en(str(project.projectID).encode()),
                     'projectName': project.projectName,
                     'projectTeam': project.projectTeam.groupName,
                     'projectIntro': project.projectIntro,
@@ -827,7 +827,7 @@ def order_project_by_name_up(request):
             project_list = []
             for project in project_list_origin:
                 project_item = {
-                    'projectID': project.projectID,
+                    'projectID': DS.des_en(str(project.projectID).encode()),
                     'projectName': project.projectName,
                     'projectTeam': project.projectTeam.groupName,
                     'projectIntro': project.projectIntro,
@@ -858,7 +858,7 @@ def order_project_by_name_down(request):
             project_list = []
             for project in project_list_origin:
                 project_item = {
-                    'projectID': project.projectID,
+                    'projectID': DS.des_en(str(project.projectID).encode()),
                     'projectName': project.projectName,
                     'projectTeam': project.projectTeam.groupName,
                     'projectIntro': project.projectIntro,
