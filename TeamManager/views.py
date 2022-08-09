@@ -27,7 +27,7 @@ def group_build(request):
             creator = UserInfo.objects.get(userID=creatorid)
         except:
             return JsonResponse({'error': 4001, 'msg': '用户不存在'})
-        Group.objects.create(groupName=group_name, creator=creator, description=description)
+        Group.objects.create(groupName=group_name, creator=creator, description=description, memberNum=1,createdTime=datetime.datetime.now())
         new_group = Group.objects.get(groupName=group_name, creator=creator, description=description)
         GroupMember.objects.create(group=new_group, user=creator, isCreator=True, isManager=True)
         return JsonResponse({'error': 0, 'msg': "团队创建成功", 'groupID': DS.des_en(str(new_group.groupId).encode())})
@@ -419,6 +419,7 @@ def get_member_info(request):
                 level='管理员'
             else:
                 level='普通成员'
+            s=str(member.userID)
             member_item = {
                 'username': member.username,
                 'realName': member.realName,
@@ -426,7 +427,7 @@ def get_member_info(request):
                 'isManager': groupMember.isManager,
                 'isCreator': groupMember.isCreator,
                 'level': level,
-                'userID': DS.des_en(str(member.userID.encode())),
+                'userID': DS.des_en(s.encode()),
             }
             member_list.append(member_item)
         return JsonResponse({'error': 0, 'member_list': member_list})
@@ -449,6 +450,12 @@ def get_group_info(request):
 
         for groupMember in GroupMember.objects.filter(user=user):
             group = groupMember.group
+            if groupMember.isCreator:
+                level='创建者'
+            elif groupMember.isManager:
+                level='管理员'
+            else:
+                level='普通成员'
             strid=str(group.groupId)
             group_item = {
                 'groupName': group.groupName,
@@ -457,6 +464,8 @@ def get_group_info(request):
                 'isCreator': groupMember.isCreator,
                 'isManager': groupMember.isManager,
                 'groupDescription': group.description,
+                'level': level,
+                'createdTime': group.createdTime,
             }
             group_list.append(group_item)
 
