@@ -620,7 +620,7 @@ def click_project(request):
             record.lastWatch = datetime.now()
             record.save()
         else:
-            ProjectUser.objects.create(project=project, user=user, last_watch=datetime.now())
+            ProjectUser.objects.create(project=project, user=user, lastWatch=datetime.now())
         return JsonResponse({'error': 0, 'msg': "点击成功"})
     else:
         return JsonResponse({'error': 2001, 'msg': "请求方式错误"})
