@@ -217,7 +217,8 @@ def userinfo_edit(request):
 
     return JsonResponse({'error': 2001, 'msg': '请求方式错误！'})
 
-#查看个人信息
+
+#  查看个人信息
 @csrf_exempt
 def userinfo_view(request):
     if request.method == 'POST':
@@ -228,5 +229,5 @@ def userinfo_view(request):
             user = UserInfo.objects.get(userID=user_id)
         except:
             return JsonResponse({'error': 4001, 'msg': '用户不存在'})
-        return JsonResponse({'error': 0, 'msg': '查询成功', 'data': {'userID': user.userID, 'userName': user.username,'userPassword':user.userpassword, 'userEmail': user.useremail,'realName':user.realName}})
+        return JsonResponse({'error': 0, 'msg': '查询成功', 'data': {'userID': DS.des_en(str(user.userID).encode()), 'userName': user.username,'userPassword':user.userpassword, 'userEmail': user.useremail,'realName':user.realName}})
     return JsonResponse({'error': 2001, 'msg': '请求方式错误！'})
