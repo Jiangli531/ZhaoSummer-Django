@@ -24,8 +24,8 @@ class DesSecret:
 
 
 #  使用举例
-
-# input_text = '1'
+#
+# input_text = '8'
 #
 # DS = DesSecret()
 # encode_str = DS.des_en(input_text.encode())

@@ -41,6 +41,7 @@ class PageEditor(models.Model):
     page = models.OneToOneField(PageInfo, on_delete=models.CASCADE)
     Editor = models.ForeignKey(UserInfo, on_delete=models.CASCADE)
 
+
 class ProjectCollect(models.Model):
     id = models.AutoField(primary_key=True)
     user = models.ForeignKey(UserInfo, on_delete=models.CASCADE)
@@ -53,5 +54,6 @@ class ProjectUser(models.Model):
     project = models.ForeignKey(ProjectInfo, on_delete=models.CASCADE)
     user = models.ForeignKey(UserInfo, on_delete=models.CASCADE)
     lastWatch = models.DateTimeField(null=True)
+
     class Meta:
         ordering = ['-lastWatch']

@@ -460,7 +460,7 @@ def get_group_info(request):
             group_item = {
                 'groupName': group.groupName,
                 'groupID': DS.des_en(strid.encode()),
-                'groupMemberNum:': group.memberNum,
+                'groupMemberNum': group.memberNum,
                 'isCreator': groupMember.isCreator,
                 'isManager': groupMember.isManager,
                 'groupDescription': group.description,
