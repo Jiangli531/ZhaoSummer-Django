@@ -13,6 +13,8 @@ urlpatterns = [
     path('recycleDoc/', recycleDoc),
     path('delRecycleDoc/', delRecycleDoc),
     path('recover/', recover),
+    path('viewProjectDocList/', viewProjectDocList),
+    path('viewTeamDocList/', viewTeamDocList),
 
 
 ]

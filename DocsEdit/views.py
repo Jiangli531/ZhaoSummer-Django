@@ -10,6 +10,7 @@ from Login.form import RegisterForm, LoginForm, ForgetPwdForm
 from Login.models import UserInfo
 from ZhaoSummer_Django.settings import EMAIL_FROM
 from utils.hash import *
+from utils.security import DesSecret
 from utils.send import *
 from utils.token import create_token
 from django.views.decorators.csrf import csrf_exempt
@@ -156,5 +157,97 @@ def recover(request):
             doc.recycled = False
             doc.save()
             return JsonResponse({'errno': 0, 'msg': "恢复成功"})
+    else:
+        return JsonResponse({'errno': 1001, 'msg': "请求方式错误"})
+
+@csrf_exempt
+def viewProjectDocList(request):
+    if request.method == 'POST':
+        DS = DesSecret()
+        project_id = request.POST.get('projectID')
+        project_id = DS.des_de(project_id)
+        project = ProjectInfo.objects.filter(projectID=project_id).first()
+        childdoc=[]
+        if project:
+            return JsonResponse({'errno': 0, 'documentList':get_prodocs(project)})
+        else:
+            return JsonResponse({'errno': 1004, 'msg': "项目不存在"})
+    else:
+        return JsonResponse({'errno': 1001, 'msg': "请求方式错误"})
+
+def get_prodocs(project):
+    childdoc = []
+    documentList = []
+    docs = Document.objects.filter(project=project).all()
+    for doc in docs:
+        ret = {
+                'docid': doc.docId,
+                'isSub': "false",
+                'title': doc.title,
+                'content': doc.content,
+                'docRight': doc.docRight,
+                'created_time': doc.created_time,
+                'modified_time': doc.modified_time,
+                'creator': doc.creator.userName,
+                'group': doc.group.groupName,
+                'childdoc': childdoc,
+        }
+        documentList.append(ret)
+    return documentList
+
+@csrf_exempt
+def viewTeamDocList(request):
+    global pro
+    if request.method == 'POST':
+        DS = DesSecret()
+        team_id = request.POST.get('teamID')
+        team_id = DS.des_de(team_id)
+        team = Group.objects.filter(groupId=team_id).first()
+        childdoc=[]
+        if team:
+            documentList = []
+            docs= Document.objects.filter(group=team).all()
+            for doc in docs:
+                if doc.project==None:
+                    sub='false'
+                    ret = {
+                        'docid': doc.docId,
+                        'isSub': sub,
+                        'title': doc.title,
+                        'content': doc.content,
+                        'docRight': doc.docRight,
+                        'created_time': doc.created_time,
+                        'modified_time': doc.modified_time,
+                        'creator': doc.creator.userName,
+                        'group': doc.group.groupName,
+                        'childdoc': childdoc,
+                    }
+                else:
+                    sub='true'
+                    pros=docs.values('project').distinct()
+                    for pro in pros:
+                        for c in docs.filter(project=pro).all():
+                            childdoc.append({
+                                'docid': c.docId,
+                                'title': c.title,
+                                'content': c.content,
+                                'docRight': c.docRight,
+                                'created_time': c.created_time,
+                                'modified_time': c.modified_time,
+                                'creator': c.creator.userName,
+                                'group': c.group.groupName,
+                            })
+                    ret = {
+                        'docid': -1,
+                        'isSub': sub,
+                        'title': pro.projectName,
+                        'content': None,
+                        'childdoc': childdoc,
+                    }
+
+                documentList.append(ret)
+            return JsonResponse({'errno': 0, 'documentList':documentList})
+        else:
+            return JsonResponse({'errno': 1004, 'msg': "团队不存在"})
     else:
         return JsonResponse({'errno': 1001, 'msg': "请求方式错误"})

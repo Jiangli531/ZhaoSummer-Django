@@ -561,7 +561,7 @@ def getRecentProject(request):
             return JsonResponse({'error': 4002, 'msg': "用户不存在"})
         pro_list=[]
         if user_id is not None:
-            pro_user_list = ProjectUser.objects.filter(user=user).order_by('-last_watch')
+            pro_user_list = ProjectUser.objects.filter(user=user).order_by('-lastWatch')
             count = 0
             for c in pro_user_list:
                 if count >= 10:
