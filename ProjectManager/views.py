@@ -561,7 +561,7 @@ def getRecentProject(request):
             return JsonResponse({'error': 4002, 'msg': "用户不存在"})
         pro_list=[]
         if user_id is not None:
-            pro_user_list = ProjectUser.objects.filter(user=user).order_by('-last_watch')
+            pro_user_list = ProjectUser.objects.filter(user=user).order_by('-lastWatch')
             count = 0
             for c in pro_user_list:
                 if count >= 10:
@@ -615,7 +615,7 @@ def click_project(request):
             project = ProjectInfo.objects.get(projectID=project_id)
         except:
             return JsonResponse({'error': 4003, 'msg': "项目不存在"})
-        ProjectUser.objects.create(project=project, user=user, last_watch=datetime.now())
+        ProjectUser.objects.create(project=project, user=user, lastWatch=datetime.now())
         return JsonResponse({'error': 0, 'msg': "点击成功"})
     else:
         return JsonResponse({'error': 2001, 'msg': "请求方式错误"})
