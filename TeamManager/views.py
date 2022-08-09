@@ -465,7 +465,7 @@ def get_group_info(request):
                 'isManager': groupMember.isManager,
                 'groupDescription': group.description,
                 'level': level,
-                'createdTime': group.createdTime,
+                'createdTime': group.createdTime.strftime('%Y-%m-%d'),
             }
             group_list.append(group_item)
 
