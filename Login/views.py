@@ -12,7 +12,16 @@ from utils.security import DesSecret
 from utils.send import *
 from utils.token import create_token
 from django.views.decorators.csrf import csrf_exempt
+from utils.security import DesSecret
 
+# Create your views here.
+from django.utils import timezone
+from django.views.decorators.csrf import csrf_exempt
+from Login.models import UserInfo
+from TeamManager.models import *
+from ProjectManager.models import *
+from DocsEdit.models import *
+from utils.security import DesSecret
 
 @csrf_exempt
 def register(request):
@@ -212,9 +221,11 @@ def userinfo_edit(request):
 @csrf_exempt
 def userinfo_view(request):
     if request.method == 'POST':
-        userID = request.POST.get('userID')
+        DS = DesSecret()
+        user_id = request.POST.get('userID')
+        user_id = DS.des_de(user_id)
         try:
-            user = UserInfo.objects.get(userID=userID)
+            user = UserInfo.objects.get(userID=user_id)
         except:
             return JsonResponse({'error': 4001, 'msg': '用户不存在'})
         return JsonResponse({'error': 0, 'msg': '查询成功', 'data': {'userID': user.userID, 'userName': user.username,'userPassword':user.userpassword, 'userEmail': user.useremail,'realName':user.realName}})
