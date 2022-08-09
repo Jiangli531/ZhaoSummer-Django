@@ -426,7 +426,7 @@ def get_member_info(request):
                 'isManager': groupMember.isManager,
                 'isCreator': groupMember.isCreator,
                 'level': level,
-                'userID': DS.des_en(member.userID.encode()),
+                'userID': DS.des_en(str(member.userID.encode())),
             }
             member_list.append(member_item)
         return JsonResponse({'error': 0, 'member_list': member_list})
