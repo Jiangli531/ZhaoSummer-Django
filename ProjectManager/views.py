@@ -730,7 +730,7 @@ def copy_project(request):
         if project.projectStatus:
             return JsonResponse({'error': 4001, 'msg': "项目不存在"})
         new_project = ProjectInfo()
-        new_project.projectName = project.projectName + "_副本"
+        new_project.projectName = project.projectName + "_副本" + str(project.copyNum + 1)
         new_project.projectTeam = project.projectTeam
         new_project.projectIntro = project.projectIntro
         new_project.projectCreator = project.projectCreator
@@ -780,6 +780,7 @@ def copy_project(request):
                         new_page_editor.page = new_page
                         new_page_editor.Editor = editor
                         new_page_editor.save()
+        project.copyNum = project.copyNum + 1
         return JsonResponse({'error': 0, 'msg': "复制成功"})
     else:
         return JsonResponse({'error': 2001, 'msg': "请求方式错误"})

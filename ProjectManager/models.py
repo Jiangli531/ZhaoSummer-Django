@@ -15,6 +15,7 @@ class ProjectInfo(models.Model):
     projectCreateTime = models.DateTimeField(auto_now=True)
     docNum = models.IntegerField(default=1)
     pageNum = models.IntegerField(default=0)
+    copyNum = models.IntegerField(default=0)
 
 
 class UMLInfo(models.Model):
