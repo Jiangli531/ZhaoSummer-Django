@@ -615,7 +615,12 @@ def click_project(request):
             project = ProjectInfo.objects.get(projectID=project_id)
         except:
             return JsonResponse({'error': 4003, 'msg': "项目不存在"})
-        ProjectUser.objects.create(project=project, user=user, last_watch=datetime.now())
+        if ProjectUser.objects.filter(project=project, user=user).exists():
+            record = ProjectUser.objects.get(project=project, user=user)
+            record.lastWatch = datetime.now()
+            record.save()
+        else:
+            ProjectUser.objects.create(project=project, user=user, last_watch=datetime.now())
         return JsonResponse({'error': 0, 'msg': "点击成功"})
     else:
         return JsonResponse({'error': 2001, 'msg': "请求方式错误"})
