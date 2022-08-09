@@ -12,15 +12,19 @@ from Login.models import UserInfo
 from TeamManager.models import *
 from ProjectManager.models import *
 from DocsEdit.models import *
+from utils.security import DesSecret
 
 
 @csrf_exempt
 def create_project(request):
     if request.method == 'POST':
+        DS = DesSecret()
         project_name = request.POST.get('projectName')
         project_teamID = request.POST.get('projectTeamID')
+        project_teamID = DS.des_de(project_teamID)
         project_intro = request.POST.get('projectIntro')
         project_creatorID = request.POST.get('projectCreatorID')
+        project_creatorID = DS.des_de(project_creatorID)
         try:
             creator = UserInfo.objects.get(userID=project_creatorID)
         except:
@@ -52,9 +56,12 @@ def create_project(request):
 @csrf_exempt
 def delete_project(request):
     if request.method == 'POST':
+        DS = DesSecret()
         project_name = request.POST.get('projectName')
         project_teamID = request.POST.get('projectTeamID')
+        project_teamID = DS.des_de(project_teamID)
         project_userID = request.POST.get('projectUserID')
+        project_userID = DS.des_de(project_userID)
         try:
             user = UserInfo.objects.get(userID=project_userID)
         except:
@@ -85,7 +92,9 @@ def delete_project(request):
 @csrf_exempt
 def view_project(request):
     if request.method == 'POST':
+        DS = DesSecret()
         projectID = request.POST.get('projectID')
+        projectID = DS.des_de(projectID)
         try:
             project = ProjectInfo.objects.get(projectID=projectID)
         except:
@@ -121,9 +130,12 @@ def view_project(request):
 @csrf_exempt
 def rename_project(request):
     if request.method == 'POST':
+        DS = DesSecret()
         project_name = request.POST.get('projectName')
         project_teamID = request.POST.get('projectTeamID')
+        project_teamID = DS.des_de(project_teamID)
         project_userID = request.POST.get('projectUserID')
+        project_userID = DS.des_de(project_userID)
         project_new_name = request.POST.get('projectNewName')
         try:
             user = UserInfo.objects.get(userID=project_userID)
@@ -157,8 +169,11 @@ def rename_project(request):
 @csrf_exempt
 def create_page(request):
     if request.method == 'POST':
+        DS = DesSecret()
         userid=request.POST.get('userID')
+        userid = DS.des_de(userid)
         projectid=request.POST.get('projectID')
+        projectid = DS.des_de(projectid)
         axureName=request.POST.get('axureName')
         try:
             user = UserInfo.objects.get(userID=userid)
@@ -184,9 +199,10 @@ def create_page(request):
 @csrf_exempt
 def save_page(request):
     if request.method == 'POST':
+        DS = DesSecret()
         axureID=request.POST.get('axureID')
         axureData=request.POST.get('axureData')
-
+        axureID = DS.des_de(axureID)
         try:
             page=PageInfo.objects.get(pageID=axureID)
         except:
@@ -202,8 +218,10 @@ def save_page(request):
 @csrf_exempt
 def rename_page(request):
     if request.method == 'POST':
+        DS = DesSecret()
         pageID=request.POST.get('axureID')
         pageName=request.POST.get('axureName')
+        pageID = DS.des_de(pageID)
         page=PageInfo.objects.filter(pageID=pageID)
         if page:
             page.pageName=pageName
@@ -218,7 +236,9 @@ def rename_page(request):
 @csrf_exempt
 def view_axure_list(request):
     if request.method == 'POST':
+        DS = DesSecret()
         project_id = request.POST.get('projectID')
+        project_id = DS.des_de(project_id)
         try:
             project = ProjectInfo.objects.get(projectID=project_id)
         except:
@@ -243,9 +263,13 @@ def view_axure_list(request):
 @csrf_exempt
 def recover_project(request):
     if request.method == 'POST':
+        DS = DesSecret()
         project_ID = request.POST.get('projectID')
+        project_ID = DS.des_de(project_ID)
         project_teamID = request.POST.get('projectTeamID')
+        project_teamID = DS.des_de(project_teamID)
         project_userID = request.POST.get('projectUserID')
+        project_userID = DS.des_de(project_userID)
         try:
             user = UserInfo.objects.get(userID=project_userID)
         except:
@@ -279,9 +303,13 @@ def recover_project(request):
 @csrf_exempt
 def destroy_project(request):
     if request.method == 'POST':
+        DS = DesSecret()
         project_ID = request.POST.get('projectID')
+        project_ID = DS.des_de(project_ID)
         project_teamID = request.POST.get('projectTeamID')
+        project_teamID = DS.des_de(project_teamID)
         project_userID = request.POST.get('projectUserID')
+        project_userID = DS.des_de(project_userID)
         try:
             user = UserInfo.objects.get(userID=project_userID)
         except:
@@ -313,8 +341,9 @@ def destroy_project(request):
 @csrf_exempt
 def view_Axure(request):
     if request.method == 'POST':
+        DS = DesSecret()
         axureID = request.POST.get('axureID')
-
+        axureID = DS.des_de(axureID)
         try:
             axure = PageInfo.objects.get(pageID=axureID)
         except:
@@ -337,9 +366,11 @@ def view_Axure(request):
 @csrf_exempt
 def confirm_Authority(request):
     if request.method == 'POST':
+        DS = DesSecret()
         projectID = request.POST.get('projectID')
+        projectID = DS.des_de(projectID)
         userID = request.POST.get('userID')
-
+        userID =DS.des_de(userID)
         try:
             project = ProjectInfo.objects.get(projectID=projectID)
         except:
@@ -363,7 +394,9 @@ def confirm_Authority(request):
 @csrf_exempt
 def view_recycle_project(request):
     if request.method == 'POST':
+        DS = DesSecret()
         group_id = request.POST.get('groupID')
+        group_id = DS.des_de(group_id)
         try:
             group = Group.objects.get(groupId=group_id)
         except:
@@ -402,9 +435,13 @@ def view_recycle_project(request):
 @csrf_exempt
 def collect_project(request):
     if request.method == 'POST':
+        DS = DesSecret()
         project_id = request.POST.get('projectID')
+        project_id = DS.des_de(project_id)
         user_id = request.POST.get('userID')
+        user_id = DS.des_de(user_id)
         group_id = request.POST.get('projectTeamID')
+        group_id = DS.des_de(group_id)
         try:
             project = ProjectInfo.objects.get(projectID=project_id)
         except:
@@ -436,9 +473,13 @@ def collect_project(request):
 @csrf_exempt
 def cancel_collect_project(request):
     if request.method == 'POST':
+        DS = DesSecret()
         project_id = request.POST.get('projectID')
+        project_id = DS.des_de(project_id)
         user_id = request.POST.get('userID')
+        user_id = DS.des_de(user_id)
         group_id = request.POST.get('projectTeamID')
+        group_id = DS.des_de(group_id)
         try:
             project = ProjectInfo.objects.get(projectID=project_id)
         except:
@@ -470,8 +511,11 @@ def cancel_collect_project(request):
 @csrf_exempt
 def get_collect_project_list(request):
     if request.method == 'POST':
+        DS = DesSecret()
+        userID = request.POST.get('userID')
+        userID = DS.des_de(userID)
         try:
-            user= UserInfo.objects.get(userID=request.POST.get('userID'))
+            user = UserInfo.objects.get(userID=userID)
         except:
             return JsonResponse({'error': 4002, 'msg': "用户不存在"})
         project_list = []
@@ -508,7 +552,9 @@ def get_collect_project_list(request):
 @csrf_exempt
 def getRecentProject(request):
     if request.method == 'POST':
+        DS = DesSecret()
         user_id=request.POST.get('userID')
+        user_id = DS.des_de(user_id)
         try:
             user=UserInfo.objects.get(userID=user_id)
         except:
@@ -556,8 +602,11 @@ def getRecentProject(request):
 @csrf_exempt
 def click_project(request):
     if request.method == 'POST':
+        DS = DesSecret()
         user_id = request.POST.get('userID')
+        user_id = DS.des_de(user_id)
         project_id = request.POST.get('projectID')
+        project_id = DS.des_de(project_id)
         try:
             user = UserInfo.objects.get(userID=user_id)
         except:
@@ -574,8 +623,11 @@ def click_project(request):
 @csrf_exempt
 def is_collect(request):
     if request.method == 'POST':
+        DS = DesSecret()
         user_id = request.POST.get('userID')
+        user_id = DS.des_de(user_id)
         project_id = request.POST.get('projectID')
+        project_id = DS.des_de(project_id)
         try:
             user = UserInfo.objects.get(userID=user_id)
         except:
@@ -597,8 +649,10 @@ def is_collect(request):
 @csrf_exempt
 def search_project(request):
     if request.method == 'POST':
+        DS = DesSecret()
         search_key = request.POST.get('key')
         teamID = request.POST.get('teamID')
+        teamID = DS.des_de(teamID)
         try:
             team = Group.objects.get(groupId=teamID)
         except:
@@ -630,7 +684,9 @@ def search_project(request):
 @csrf_exempt
 def order_project_by_time_up(request):
     if request.method == 'POST':
+        DS = DesSecret()
         teamID = request.POST.get('teamID')
+        teamID = DS.des_de(teamID)
         try:
             team = Group.objects.get(groupId=teamID)
         except:
@@ -659,7 +715,9 @@ def order_project_by_time_up(request):
 @csrf_exempt
 def copy_project(request):
     if request.method == 'POST':
+        DS = DesSecret()
         projectID = request.POST.get('projectID')
+        projectID = DS.des_de(projectID)
         try:
             project = ProjectInfo.objects.get(projectID=projectID)
         except:
@@ -725,7 +783,9 @@ def copy_project(request):
 @csrf_exempt
 def order_project_by_time_down(request):
     if request.method == 'POST':
+        DS = DesSecret()
         teamID = request.POST.get('teamID')
+        teamID = DS.des_de(teamID)
         try:
             team = Group.objects.get(groupId=teamID)
         except:
@@ -754,7 +814,9 @@ def order_project_by_time_down(request):
 @csrf_exempt
 def order_project_by_name_up(request):
     if request.method == 'POST':
+        DS = DesSecret()
         teamID = request.POST.get('teamID')
+        teamID = DS.des_de(teamID)
         try:
             team = Group.objects.get(groupId=teamID)
         except:
@@ -783,7 +845,9 @@ def order_project_by_name_up(request):
 @csrf_exempt
 def order_project_by_name_down(request):
     if request.method == 'POST':
+        DS = DesSecret()
         teamID = request.POST.get('teamID')
+        teamID = DS.des_de(teamID)
         try:
             team = Group.objects.get(groupId=teamID)
         except:
