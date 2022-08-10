@@ -50,13 +50,15 @@ def createDocument(request):
         title = request.POST.get('title')
         groupid=request.POST.get('groupID')
         group=Group.objects.filter(groupId=groupid).first()
-        if userid:
-            user = UserInfo.objects.filter(userID=userid).first()
+        if projectid==None:
+            project=None
+        else:
             try:
                 project = ProjectInfo.objects.get(projectID=projectid)
             except:
                 return JsonResponse({'errno': 1004, 'msg': "项目不存在"})
-
+        if userid:
+            user = UserInfo.objects.filter(userID=userid).first()
             doc = Document.objects.filter(title=title, project=project).first()
             if doc:
                 return JsonResponse({'errno': 1003, 'msg': "文件名已存在"})
