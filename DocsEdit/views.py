@@ -251,23 +251,7 @@ def viewTeamDocList(request):
             projectNo = ProjectInfo.objects.filter(projectTeam=team).values('projectID').distinct()
             documentList = []
             docs= Document.objects.filter(group=team)
-            for doc in docs:
-                if not doc.type:
-                    sub = 'false'
-                    childdoc = []
-                    ret = {
-                        'docid': DS.des_en(str(doc.docId)),
-                        'isSub': sub,
-                        'title': doc.title,
-                        'content': doc.content,
-                        'docRight': doc.docRight,
-                        'created_time': doc.created_time,
-                        'modified_time': doc.modified_time,
-                        'creator': doc.creator.username,
-                        'group': doc.group.groupName,
-                        'childdoc': childdoc,
-                    }
-                    documentList.append(ret)
+
             for projectid in projectNo:
                 print(projectid['projectID'])
                 try:
@@ -299,6 +283,24 @@ def viewTeamDocList(request):
                     'childdoc': childdocs,
                 }
                 documentList.append(project_item)
+
+            for doc in docs:
+                if not doc.type:
+                    sub = 'false'
+                    childdoc = []
+                    ret = {
+                        'docid': DS.des_en(str(doc.docId)),
+                        'isSub': sub,
+                        'title': doc.title,
+                        'content': doc.content,
+                        'docRight': doc.docRight,
+                        'created_time': doc.created_time,
+                        'modified_time': doc.modified_time,
+                        'creator': doc.creator.username,
+                        'group': doc.group.groupName,
+                        'childdoc': childdoc,
+                    }
+                    documentList.append(ret)
             return JsonResponse({'errno': 0, 'documentList': documentList})
         else:
             return JsonResponse({'errno': 1004, 'msg': "团队不存在"})
