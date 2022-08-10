@@ -999,9 +999,37 @@ def view_uml_list(request):
 
 
 @csrf_exempt
+def edit_authority(request):
+    if request.method == 'POST':
+        DS = DesSecret()
+        project_id = request.POST.get('projectID')
+        try:
+            project_id = DS.des_de(project_id)
+        except:
+            return JsonResponse({'error': 3001, 'msg': "你的ID好像不太对哦?"})
+        authority = request.POST.get('limit')
+
+        try:
+            project = ProjectInfo.objects.get(projectID=project_id)
+        except:
+            return JsonResponse({'error': 4001, 'msg': '项目部不存在'})
+
+        project.authority = authority
+        project.save()
+        return JsonResponse({'error': 0, 'msg': '修改预览权限成功！'})
+    else:
+        return JsonResponse({'error': 2001, 'msg': "请求方式错误"})
+
+
+@csrf_exempt
 def check_project_limit(request):
     if request.method == 'POST':
+        DS = DesSecret()
         projectid = request.POST.get('projectID')
+        try:
+            projectid = DS.des_de(projectid)
+        except:
+            return JsonResponse({'error': 3001, 'msg': "你的ID好像不太对哦?"})
         try:
             project = ProjectInfo.objects.get(projectID=projectid)
         except:
