@@ -29,9 +29,9 @@ def viewDocList(request):
             data = []
             for c in doc_list:
                 ret = {
-                    'docID': c.docId,
+                    'docID': DS.des_en(str(c.docId)),
                     'title': c.title,
-                    'creatorID': c.creator.userID,
+                    'creatorID': DS.des_en(str(c.creator.userID)),
                     'perm': c.docRight,
                     'modified_date': c.modified_time.strftime('%Y-%m-%d %H:%M:%S')
                 }
@@ -92,7 +92,7 @@ def createDocument(request):
                 project.docNum += 1
                 project.save()
             ret={
-                'docID': document.docId,
+                'docID': DS.des_en(str(document.docId)),
                 'title': document.title,
             }
             return JsonResponse({'errno': 0, 'data': ret})
@@ -209,12 +209,13 @@ def viewProjectDocList(request):
         return JsonResponse({'errno': 1001, 'msg': "请求方式错误"})
 
 def get_prodocs(project):
+    DS = DesSecret()
     childdoc = []
     documentList = []
     docs = Document.objects.filter(project=project).all()
     for doc in docs:
         ret = {
-                'docid': doc.docId,
+                'docid': DS.des_en(str(doc.docId)),
                 'isSub': "false",
                 'title': doc.title,
                 'content': doc.content,
@@ -245,7 +246,7 @@ def viewTeamDocList(request):
                     sub = 'false'
                     childdoc = []
                     ret = {
-                        'docid': doc.docId,
+                        'docid': DS.des_en(str(doc.docId)),
                         'isSub': sub,
                         'title': doc.title,
                         'content': doc.content,
@@ -270,7 +271,7 @@ def viewTeamDocList(request):
                 childdocs = []
                 for document in documents:
                     document_item = {
-                        'docid': document.docId,
+                        'docid': DS.des_en(str(document.docId)),
                         'title': document.title,
                         'content': document.content,
                         'docRight': document.docRight,
