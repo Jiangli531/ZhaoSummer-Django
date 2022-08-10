@@ -224,7 +224,10 @@ def userinfo_view(request):
     if request.method == 'POST':
         DS = DesSecret()
         user_id = request.POST.get('userID')
-        user_id = DS.des_de(user_id)
+        try:
+            user_id = DS.des_de(user_id)
+        except:
+            return JsonResponse({'error': 3001, 'msg': '你的userID不对啊！'})
         try:
             user = UserInfo.objects.get(userID=user_id)
         except:

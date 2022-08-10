@@ -1013,9 +1013,14 @@ def edit_authority(request):
             project = ProjectInfo.objects.get(projectID=project_id)
         except:
             return JsonResponse({'error': 4001, 'msg': '项目部不存在'})
-
-        project.authority = authority
-        project.save()
+        if authority == 'true':
+            project.authority = True
+            project.save()
+        elif authority == 'false':
+            project.authority = False
+            project.save()
+        else:
+            return JsonResponse({'error': 4002, 'msg': '要修改的权限只能是true/false!'})
         return JsonResponse({'error': 0, 'msg': '修改预览权限成功！'})
     else:
         return JsonResponse({'error': 2001, 'msg': "请求方式错误"})

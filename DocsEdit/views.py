@@ -108,7 +108,7 @@ def viewDoc(request):
         DS = DesSecret()
         doc_id = request.POST.get("docID")
         doc_id = DS.des_de(doc_id)
-        doc = Document.objects.filter(docID=doc_id).first()
+        doc = Document.objects.filter(docId=doc_id).first()
         if doc:
             ret = {
                     'title': doc.title,
@@ -129,7 +129,7 @@ def modifyDocName(request):
             doc_id = request.POST.get("docID")
             doc_id = DS.des_de(doc_id)
             title = request.POST.get("title")
-            doc = Document.objects.get(docID=doc_id)
+            doc = Document.objects.get(docId=doc_id)
             doc.title = title
             doc.save()
             return JsonResponse({'errno': 0, 'msg': "修改成功"})
@@ -147,7 +147,7 @@ def modifyDocContent(request):
             except:
                 return JsonResponse({'error': 3001, 'msg': '你的ID好像不太对哦?'})
             content = request.POST.get("content")
-            doc = Document.objects.get(docID=doc_id)
+            doc = Document.objects.get(docId=doc_id)
             doc.content = content
             doc.modified_time = timezone.now()
             doc.save()
@@ -162,7 +162,7 @@ def recycleDoc(request):
             DS = DesSecret()
             doc_id = request.POST.get("docID")
             doc_id = DS.des_de(doc_id)
-            doc = Document.objects.get(docID=doc_id)
+            doc = Document.objects.get(docId=doc_id)
             doc.recycled = True
             doc.save()
             doc.project.docNum -= 1
@@ -179,7 +179,7 @@ def delRecycleDoc(request):
             DS = DesSecret()
             doc_id = request.POST.get("docId")
             doc_id = DS.des_de(doc_id)
-            Document.objects.filter(docID=doc_id).first().delete()
+            Document.objects.filter(docId=doc_id).first().delete()
             return JsonResponse({'errno': 0, 'msg': "删除成功"})
     else:
         return JsonResponse({'errno': 1001, 'msg': "请求方式错误"})
@@ -192,7 +192,7 @@ def recover(request):
             DS = DesSecret()
             doc_id = request.POST.get("docId")
             doc_id = DS.des_de(doc_id)
-            doc = Document.objects.filter(docID=doc_id).first()
+            doc = Document.objects.filter(docId=doc_id).first()
             doc.recycled = False
             doc.save()
             return JsonResponse({'errno': 0, 'msg': "恢复成功"})

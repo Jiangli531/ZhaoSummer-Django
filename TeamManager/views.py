@@ -440,7 +440,10 @@ def get_group_info(request):
     if request.method == 'POST':
         DS = DesSecret()
         userID = request.POST.get('userID')
-        userID = DS.des_de(userID)
+        try:
+            userID = DS.des_de(userID)
+        except:
+            return JsonResponse({'error': 3001, 'msg': '你的userID不对啊！'})
         try:
             user = UserInfo.objects.get(userID=userID)
         except:
