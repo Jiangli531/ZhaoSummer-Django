@@ -255,7 +255,7 @@ def view_axure_list(request):
                 'axureID': DS.des_en(str(axure.pageID).encode()),
                 'axureName': axure.pageName,
                 'creatorID': DS.des_en(str(axure.pageCreator.userID).encode()),
-
+                'axureContent': axure.pageContent
             }
             axure_list.append(axure_item)
         if not axure_list:
