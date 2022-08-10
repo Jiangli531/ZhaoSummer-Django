@@ -225,13 +225,13 @@ def viewTeamDocList(request):
         team_id = request.POST.get('teamID')
         team_id = DS.des_de(team_id)
         team = Group.objects.filter(groupId=team_id).first()
-        childdoc=[]
         if team:
             documentList = []
             docs= Document.objects.filter(group=team)
             for doc in docs:
                 if not doc.type:
                     sub = 'false'
+                    childdoc = []
                     ret = {
                         'docid': doc.docId,
                         'isSub': sub,
@@ -249,6 +249,7 @@ def viewTeamDocList(request):
                     sub = 'true'
                     pros=docs.values('project').distinct()
                     for pro in pros:
+                        childdoc = []
                         if pro['project']==None:
                             continue
                         for c in docs.filter(project=pro['project']).all():
@@ -270,7 +271,7 @@ def viewTeamDocList(request):
                             'childdoc': childdoc,
                         }
                         documentList.append(ret)
-                    return JsonResponse({'errno': 0, 'documentList': documentList})
+            return JsonResponse({'errno': 0, 'documentList': documentList})
         else:
             return JsonResponse({'errno': 1004, 'msg': "团队不存在"})
     else:
