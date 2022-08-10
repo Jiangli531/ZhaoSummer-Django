@@ -16,6 +16,7 @@ class ProjectInfo(models.Model):
     docNum = models.IntegerField(default=1)
     pageNum = models.IntegerField(default=0)
     copyNum = models.IntegerField(default=0)
+    authority = models.BooleanField(default=False)  # False代表项目不开放预览 True代表开放预览权限
 
 
 class UMLInfo(models.Model):
