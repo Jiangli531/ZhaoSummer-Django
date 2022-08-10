@@ -254,10 +254,10 @@ def view_axure_list(request):
         axure_list = []
         for axure in PageInfo.objects.filter(pageProject=project):
             axure_item = {
-                'axureID': DS.des_en(str(axure.pageID).encode()),
-                'axureName': axure.pageName,
+                'ID': DS.des_en(str(axure.pageID).encode()),
+                'name': axure.pageName,
                 'creatorID': DS.des_en(str(axure.pageCreator.userID).encode()),
-                'axureContent': axure.pageContent
+                'content': axure.pageContent
             }
             axure_list.append(axure_item)
         if not axure_list:
@@ -967,7 +967,7 @@ def rename_uml(request):
 
 
 @csrf_exempt
-def view_axure_list(request):
+def view_uml_list(request):
     if request.method == 'POST':
         DS = DesSecret()
         project_id = request.POST.get('projectID')
@@ -983,9 +983,9 @@ def view_axure_list(request):
         for axure in UMLInfo.objects.filter(umlProject=project):
             axure_item = {
                 'umlID': DS.des_en(str(axure.umlID).encode()),
-                'umlName': axure.umlName,
+                'name': axure.umlName,
                 'creatorID': DS.des_en(str(axure.umlCreator.userID).encode()),
-                'umlContent': axure.umlContent
+                'content': axure.umlContent
             }
             uml_list.append(axure_item)
         if not uml_list:
