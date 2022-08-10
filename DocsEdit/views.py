@@ -20,7 +20,9 @@ from django.views.decorators.csrf import csrf_exempt
 @csrf_exempt
 def viewDocList(request):
     if request.method == 'POST':
+        DS=DesSecret()
         projectid=request.POST.get('projectID')
+        projectid = DS.des_de(projectid)
         if projectid:
             project=ProjectInfo.objects.filter(projectID=projectid).first()
             doc_list = Document.objects.filter( project=project, recycled=False).order_by('-modified_time')
@@ -45,18 +47,19 @@ def viewDocList(request):
 @csrf_exempt
 def createDocument(request):
     if request.method == 'POST':
-        userid = request.POST.get('userID')
+        DS = DesSecret()
+        userID = request.POST.get('userID')
+        userid = DS.des_de(userID)
         projectid = request.POST.get('projectID')
+        projectid = DS.des_de(projectid)
         title = request.POST.get('title')
         groupid=request.POST.get('groupID')
+        groupid=DS.des_de(groupid)
         group=Group.objects.filter(groupId=groupid).first()
-        if projectid==None:
+        if projectid == '-1':
             project=None
         else:
-            try:
-                project = ProjectInfo.objects.get(projectID=projectid)
-            except:
-                return JsonResponse({'errno': 1004, 'msg': "项目不存在"})
+            project = ProjectInfo.objects.get(projectID=projectid)
         if userid:
             user = UserInfo.objects.filter(userID=userid).first()
             doc = Document.objects.filter(title=title, project=project).first()
@@ -71,8 +74,9 @@ def createDocument(request):
             document.project=project
             document.group=group
             document.save()
-            project.docNum += 1
-            project.save()
+            if project:
+                project.docNum += 1
+                project.save()
             ret={
                 'docID':document.docId,
                 'title':document.title,
@@ -86,7 +90,9 @@ def createDocument(request):
 @csrf_exempt
 def viewDoc(request):
     if request.method == 'GET':
+        DS = DesSecret()
         doc_id = request.POST.get("docID")
+        doc_id = DS.des_de(doc_id)
         doc = Document.objects.filter(docID=doc_id).first()
         if doc:
             ret = {
@@ -103,7 +109,9 @@ def viewDoc(request):
 @csrf_exempt
 def modifyDocName(request):
     if request.method == 'POST':
+            DS = DesSecret()
             doc_id = request.POST.get("docID")
+            doc_id = DS.des_de(doc_id)
             title = request.POST.get("title")
             doc = Document.objects.get(docID=doc_id)
             doc.title = title
@@ -116,7 +124,9 @@ def modifyDocName(request):
 @csrf_exempt
 def modifyDocContent(request):
     if request.method == 'POST':
+            DS = DesSecret()
             doc_id = request.POST.get("docID")
+            doc_id = DS.des_de(doc_id)
             content = request.POST.get("content")
             doc = Document.objects.get(docID=doc_id)
             doc.content = content
@@ -129,7 +139,9 @@ def modifyDocContent(request):
 @csrf_exempt
 def recycleDoc(request):
     if request.method == 'POST':
+            DS = DesSecret()
             doc_id = request.POST.get("docID")
+            doc_id = DS.des_de(doc_id)
             doc = Document.objects.get(docID=doc_id)
             doc.recycled = True
             doc.save()
@@ -144,7 +156,9 @@ def recycleDoc(request):
 @csrf_exempt
 def delRecycleDoc(request):
     if request.method == 'POST':
+            DS = DesSecret()
             doc_id = request.POST.get("docId")
+            doc_id = DS.des_de(doc_id)
             Document.objects.filter(docID=doc_id).first().delete()
             return JsonResponse({'errno': 0, 'msg': "删除成功"})
     else:
@@ -154,7 +168,9 @@ def delRecycleDoc(request):
 @csrf_exempt
 def recover(request):
     if request.method == 'POST':
+            DS = DesSecret()
             doc_id = request.POST.get("docId")
+            doc_id = DS.des_de(doc_id)
             doc = Document.objects.filter(docID=doc_id).first()
             doc.recycled = False
             doc.save()
