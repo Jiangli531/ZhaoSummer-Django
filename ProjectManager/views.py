@@ -62,6 +62,7 @@ def delete_project(request):
         project_teamID = DS.des_de(project_teamID)
         project_userID = request.POST.get('projectUserID')
         project_userID = DS.des_de(project_userID)
+        print(DS.des_en(str(35)))
         try:
             user = UserInfo.objects.get(userID=project_userID)
         except:
@@ -792,6 +793,7 @@ def copy_project(request):
                         new_page_editor.Editor = editor
                         new_page_editor.save()
         project.copyNum = project.copyNum + 1
+        project.save()
         return JsonResponse({'error': 0, 'msg': "复制成功"})
     else:
         return JsonResponse({'error': 2001, 'msg': "请求方式错误"})
