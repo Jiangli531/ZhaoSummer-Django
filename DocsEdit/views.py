@@ -57,7 +57,7 @@ def createDocument(request):
         groupid=DS.des_de(groupid)
         group=Group.objects.filter(groupId=groupid).first()
         if projectid == '-1':
-            project=None
+            project = None
         else:
             project = ProjectInfo.objects.get(projectID=projectid)
         if userid:
@@ -73,6 +73,10 @@ def createDocument(request):
             document.modified_time = timezone.now()
             document.project=project
             document.group=group
+            if project:
+                document.type = False
+            else:
+                document.type = True
             document.save()
             if project:
                 project.docNum += 1
@@ -224,11 +228,10 @@ def viewTeamDocList(request):
         childdoc=[]
         if team:
             documentList = []
-            docs= Document.objects.filter(group=team).all()
+            docs= Document.objects.filter(group=team)
             for doc in docs:
-                try:
-                    ll=doc.project
-                    sub='false'
+                if not doc.type:
+                    sub = 'false'
                     ret = {
                         'docid': doc.docId,
                         'isSub': sub,
@@ -241,8 +244,9 @@ def viewTeamDocList(request):
                         'group': doc.group.groupName,
                         'childdoc': childdoc,
                     }
-                except:
-                    sub='true'
+                    documentList.append(ret)
+                else:
+                    sub = 'true'
                     pros=docs.values('project').distinct()
                     for pro in pros:
                         if pro['project']==None:
@@ -258,16 +262,16 @@ def viewTeamDocList(request):
                                 'creator': c.creator.username,
                                 'group': c.group.groupName,
                             })
-                            ret = {
-                                'docid': -1,
-                                'isSub': sub,
-                                'title': pro['project'],
-                                'content': None,
-                                'childdoc': childdoc,
-                            }
-                            documentList.append(ret)
-                        return JsonResponse({'errno': 0, 'documentList': documentList})
-                    else:
-                        return JsonResponse({'errno': 1004, 'msg': "团队不存在"})
-                else:
-                    return JsonResponse({'errno': 1001, 'msg': "请求方式错误"})
+                        ret = {
+                            'docid': -1,
+                            'isSub': sub,
+                            'title': pro['project'],
+                            'content': None,
+                            'childdoc': childdoc,
+                        }
+                        documentList.append(ret)
+                    return JsonResponse({'errno': 0, 'documentList': documentList})
+        else:
+            return JsonResponse({'errno': 1004, 'msg': "团队不存在"})
+    else:
+        return JsonResponse({'errno': 1001, 'msg': "请求方式错误"})
