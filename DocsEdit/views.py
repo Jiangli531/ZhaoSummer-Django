@@ -51,7 +51,10 @@ def createDocument(request):
         DS = DesSecret()
         userID = request.POST.get('userID')
         userid = DS.des_de(userID)
+        # print(type)
+        # print(type(type))
         if type == '0':
+            # print(000)
             projectid = request.POST.get('projectID')
             projectid = DS.des_de(projectid)
 
@@ -61,6 +64,7 @@ def createDocument(request):
                 return JsonResponse({'error': 1004, 'msg': "项目不存在"})
             groupid = project.projectTeam.groupId
         else:
+            # print(111)
             project = None
             groupid = request.POST.get('groupID')
             groupid = DS.des_de(groupid)
