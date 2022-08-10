@@ -31,4 +31,6 @@ urlpatterns = [
     path('projectClick/', click_project),
     path('projectCopy/', copy_project),
     path('isCollect/', is_collect),
+    path('createUML/', create_uml),
+
 ]
