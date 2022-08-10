@@ -94,7 +94,10 @@ def view_project(request):
     if request.method == 'POST':
         DS = DesSecret()
         projectID = request.POST.get('projectID')
-        projectID = DS.des_de(projectID)
+        try:
+            projectID = DS.des_de(projectID)
+        except:
+            return JsonResponse({'error': 3001, 'msg': "你的ID好像不太对哦?"})
         try:
             project = ProjectInfo.objects.get(projectID=projectID)
         except:
@@ -238,7 +241,10 @@ def view_axure_list(request):
     if request.method == 'POST':
         DS = DesSecret()
         project_id = request.POST.get('projectID')
-        project_id = DS.des_de(project_id)
+        try:
+            project_id = DS.des_de(project_id)
+        except:
+            return JsonResponse({'error': 3001, 'msg': "你的ID好像不太对哦?"})
         try:
             project = ProjectInfo.objects.get(projectID=project_id)
         except:
@@ -343,7 +349,10 @@ def view_Axure(request):
     if request.method == 'POST':
         DS = DesSecret()
         axureID = request.POST.get('axureID')
-        axureID = DS.des_de(axureID)
+        try:
+            axureID = DS.des_de(axureID)
+        except:
+            return JsonResponse({'error': 3001, 'msg': "你的ID好像不太对哦?"})
         try:
             axure = PageInfo.objects.get(pageID=axureID)
         except:
