@@ -54,15 +54,17 @@ def createDocument(request):
         if type == '0':
             projectid = request.POST.get('projectID')
             projectid = DS.des_de(projectid)
+
             try:
                 project = ProjectInfo.objects.get(projectID=projectid)
             except:
                 return JsonResponse({'error': 1004, 'msg': "项目不存在"})
+            groupid = project.projectTeam.groupId
         else:
             project = None
+            groupid = request.POST.get('groupID')
+            groupid = DS.des_de(groupid)
         title = request.POST.get('title')
-        groupid=request.POST.get('groupID')
-        groupid=DS.des_de(groupid)
         group=Group.objects.filter(groupId=groupid).first()
         if userid:
             user = UserInfo.objects.filter(userID=userid).first()
