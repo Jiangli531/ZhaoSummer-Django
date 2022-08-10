@@ -21,7 +21,8 @@ class ProjectInfo(models.Model):
 class UMLInfo(models.Model):
     umlID = models.AutoField(primary_key=True)
     umlName = models.CharField(max_length=128, null=False)
-    umlPath = models.CharField(max_length=200)
+    umlPath = models.CharField(max_length=200, null=True)
+    umlContent = models.TextField(null=True)
     umlCreator = models.ForeignKey(UserInfo, on_delete=models.CASCADE)
     umlCreateTime = models.DateTimeField(auto_now=True)
     umlProject = models.ForeignKey(ProjectInfo, on_delete=models.CASCADE)

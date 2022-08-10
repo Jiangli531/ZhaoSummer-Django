@@ -18,4 +18,4 @@ class Document(models.Model):
     isOccupied = models.IntegerField(null=True)
     group = models.ForeignKey(Group, on_delete=models.CASCADE,null=True)
     project = models.ForeignKey(ProjectInfo, on_delete=models.CASCADE)
-    type = models.BooleanField(default=False)#False表示文档是团队文档，True表示是项目文档
+    type = models.BooleanField(default=False)  #  False表示文档是团队文档，True表示是项目文档
