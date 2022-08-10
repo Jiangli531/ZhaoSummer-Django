@@ -64,7 +64,6 @@ def createDocument(request):
         groupid=request.POST.get('groupID')
         groupid=DS.des_de(groupid)
         group=Group.objects.filter(groupId=groupid).first()
-
         if userid:
             user = UserInfo.objects.filter(userID=userid).first()
             doc = Document.objects.filter(title=title, project=project).first()
@@ -193,6 +192,7 @@ def viewProjectDocList(request):
         DS = DesSecret()
         project_id = request.POST.get('projectID')
         project_id = DS.des_de(project_id)
+        print(DS.des_en(str(8)))
         project = ProjectInfo.objects.filter(projectID=project_id).first()
         childdoc=[]
         if project:
@@ -215,7 +215,7 @@ def get_prodocs(project):
                 'docRight': doc.docRight,
                 'created_time': doc.created_time,
                 'modified_time': doc.modified_time,
-                'creator': doc.creator.userName,
+                'creator': doc.creator.username,
                 'group': doc.group.groupName,
                 'childdoc': childdoc,
         }
