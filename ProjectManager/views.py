@@ -687,7 +687,7 @@ def search_project(request):
                         'projectName': project.projectName,
                         'projectTeam': project.projectTeam.groupName,
                         'projectIntro': project.projectIntro,
-                        'projectCreator': project.projectCreator.username,
+                        'creator': project.projectCreator.username,
                         'projectCreateTime': project.projectCreateTime.strftime('%Y-%m-%d'),
                     }
                     project_list.append(project_item)
