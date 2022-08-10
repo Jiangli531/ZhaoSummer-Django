@@ -72,7 +72,7 @@ def delete_project(request):
         except:
             return JsonResponse({'error': 4002, 'msg': "团队不存在"})
         try:
-            project = ProjectInfo.objects.get(projectName=project_name)
+            project = ProjectInfo.objects.get(projectName=project_name, projectTeam=team)
         except:
             return JsonResponse({'error': 4003, 'msg': "项目不存在"})
         if project.projectStatus:
