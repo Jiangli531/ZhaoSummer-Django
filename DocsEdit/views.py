@@ -101,6 +101,7 @@ def createDocument(request):
     else:
         return JsonResponse({'errno': 1001, 'msg': "请求方式错误"})
 
+
 @csrf_exempt
 def viewDoc(request):
     if request.method == 'GET':
@@ -119,6 +120,7 @@ def viewDoc(request):
                 return JsonResponse({'errno': 1003, 'msg': "未找到该文件}"})
     else:
         return JsonResponse({'errno': 1001, 'msg': "请求方式错误"})
+
 
 @csrf_exempt
 def modifyDocName(request):
@@ -140,7 +142,10 @@ def modifyDocContent(request):
     if request.method == 'POST':
             DS = DesSecret()
             doc_id = request.POST.get("docID")
-            doc_id = DS.des_de(doc_id)
+            try:
+                doc_id = DS.des_de(doc_id)
+            except:
+                return JsonResponse({'error': 3001, 'msg': '你的ID好像不太对哦?'})
             content = request.POST.get("content")
             doc = Document.objects.get(docID=doc_id)
             doc.content = content
@@ -149,6 +154,7 @@ def modifyDocContent(request):
             return JsonResponse({'errno': 0, 'msg': "修改成功"})
     else:
         return JsonResponse({'errno': 1001, 'msg': "请求方式错误"})
+
 
 @csrf_exempt
 def recycleDoc(request):
@@ -178,6 +184,7 @@ def delRecycleDoc(request):
     else:
         return JsonResponse({'errno': 1001, 'msg': "请求方式错误"})
 
+
 # 回收站恢复文档（个人中心）
 @csrf_exempt
 def recover(request):
@@ -191,6 +198,7 @@ def recover(request):
             return JsonResponse({'errno': 0, 'msg': "恢复成功"})
     else:
         return JsonResponse({'errno': 1001, 'msg': "请求方式错误"})
+
 
 @csrf_exempt
 def viewProjectDocList(request):
@@ -207,6 +215,7 @@ def viewProjectDocList(request):
             return JsonResponse({'errno': 1004, 'msg': "项目不存在"})
     else:
         return JsonResponse({'errno': 1001, 'msg': "请求方式错误"})
+
 
 def get_prodocs(project):
     childdoc = []
@@ -227,6 +236,7 @@ def get_prodocs(project):
         }
         documentList.append(ret)
     return documentList
+
 
 @csrf_exempt
 def viewTeamDocList(request):
