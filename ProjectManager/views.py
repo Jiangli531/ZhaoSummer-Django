@@ -255,7 +255,7 @@ def view_axure_list(request):
         axure_list = []
         for axure in PageInfo.objects.filter(pageProject=project):
             axure_item = {
-                'ID': DS.des_en(str(axure.pageID).encode()),
+                'id': DS.des_en(str(axure.pageID).encode()),
                 'name': axure.pageName,
                 'creatorID': DS.des_en(str(axure.pageCreator.userID).encode()),
                 'content': axure.pageContent
@@ -984,7 +984,7 @@ def view_uml_list(request):
         uml_list = []
         for axure in UMLInfo.objects.filter(umlProject=project):
             axure_item = {
-                'umlID': DS.des_en(str(axure.umlID).encode()),
+                'id': DS.des_en(str(axure.umlID).encode()),
                 'name': axure.umlName,
                 'creatorID': DS.des_en(str(axure.umlCreator.userID).encode()),
                 'content': axure.umlContent
