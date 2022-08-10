@@ -173,11 +173,13 @@ def rename_project(request):
 def create_page(request):
     if request.method == 'POST':
         DS = DesSecret()
-        userid=request.POST.get('userID')
+        userid = request.POST.get('userID')
         userid = DS.des_de(userid)
-        projectid=request.POST.get('projectID')
+        projectid = request.POST.get('projectID')
         projectid = DS.des_de(projectid)
-        axureName=request.POST.get('axureName')
+        axureName = request.POST.get('axureName')
+        axureData = request.POST.get('axureData')
+
         try:
             user = UserInfo.objects.get(userID=userid)
         except:
@@ -188,9 +190,9 @@ def create_page(request):
             return JsonResponse({'error': 4002, 'msg': "项目不存在"})
         if project.projectStatus:
             return JsonResponse({'error': 4002, 'msg': "项目不存在"})
-        if PageInfo.objects.filter(pageName=axureName, pageProject=project,pageCreator=user).exists():
+        if PageInfo.objects.filter(pageName=axureName, pageProject=project, pageCreator=user).exists():
             return JsonResponse({'error': 4003, 'msg': "页面已存在"})
-        page=PageInfo(pageName=axureName,pageProject=project, pageCreator=user)
+        page = PageInfo(pageName=axureName, pageProject=project, pageCreator=user, pageContent=axureData)
         page.save()
         project.pageNum += 1
         project.save()
@@ -252,10 +254,10 @@ def view_axure_list(request):
         axure_list = []
         for axure in PageInfo.objects.filter(pageProject=project):
             axure_item = {
-                'axureID': DS.des_en(str(axure.pageID).encode()),
-                'axureName': axure.pageName,
+                'ID': DS.des_en(str(axure.pageID).encode()),
+                'name': axure.pageName,
                 'creatorID': DS.des_en(str(axure.pageCreator.userID).encode()),
-                'axureContent': axure.pageContent
+                'content': axure.pageContent
             }
             axure_list.append(axure_item)
         if not axure_list:
@@ -884,5 +886,111 @@ def order_project_by_name_down(request):
             return JsonResponse({'error': 0, '-projectListOrderByName': json.dumps(project_list, ensure_ascii=False)})
         else:
             return JsonResponse({'error': 4002, 'msg': "团队无项目"})
+    else:
+        return JsonResponse({'error': 2001, 'msg': "请求方式错误"})
+
+
+@csrf_exempt
+def create_uml(request):
+    if request.method == 'POST':
+        DS = DesSecret()
+        userid = request.POST.get('userID')
+        try:
+            userid = DS.des_de(userid)
+            projectid = request.POST.get('projectID')
+            projectid = DS.des_de(projectid)
+        except:
+            return JsonResponse({'error': 3001, 'msg': '你的ID好像不太对哦？'})
+        umlName = request.POST.get('umlName')
+        umlContent = request.POST.get('umlData')
+        try:
+            user = UserInfo.objects.get(userID=userid)
+        except:
+            return JsonResponse({'error': 4001, 'msg': "用户不存在"})
+        try:
+            project = ProjectInfo.objects.get(projectID=projectid)
+        except:
+            return JsonResponse({'error': 4002, 'msg': "项目不存在"})
+        if project.projectStatus:
+            return JsonResponse({'error': 4002, 'msg': "项目不存在"})
+        if UMLInfo.objects.filter(umlName=umlName, umlProject=project, umlCreator=user).exists():
+            return JsonResponse({'error': 4003, 'msg': "UML已存在"})
+        uml = UMLInfo(umlName=umlName, umlProject=project, umlCreator=user, umlContent=umlContent)
+        uml.save()
+        return JsonResponse({'error': 0, 'msg': "创建成功", 'UMLID': DS.des_en(str(uml.umlID).encode())})
+    else:
+        return JsonResponse({'error': 2001, 'msg': "请求方式错误"})
+
+
+@csrf_exempt
+def uml_save(request):
+    if request.method == 'POST':
+        DS = DesSecret()
+        umlID = request.POST.get('umlID')
+        umlData = request.POST.get('umlData')
+        try:
+            umlID = DS.des_de(umlID)
+        except:
+            return JsonResponse({'error': 3001, 'msg': '你的ID好像不太对哦？'})
+        try:
+            uml = UMLInfo.objects.get(umlID=umlID)
+        except:
+            return JsonResponse({'error': 4001, 'msg': "uml不存在"})
+
+        uml.pageContent = umlData
+        uml.save()
+        return JsonResponse({'error': 0, 'msg': "保存成功"})
+    else:
+        return JsonResponse({'error': 2001, 'msg': "请求方式错误"})
+
+
+@csrf_exempt
+def rename_uml(request):
+    if request.method == 'POST':
+        DS = DesSecret()
+        pageID = request.POST.get('umlID')
+        pageName = request.POST.get('umlName')
+        try:
+            pageID = DS.des_de(pageID)
+        except:
+            return JsonResponse({'error': 3001, 'msg': '你的ID好像不太对哦？'})
+
+        page = UMLInfo.objects.filter(umlID=pageID)
+        if page:
+            page.pageName = pageName
+            page.save()
+            return JsonResponse({'error': 0, 'msg': "重命名成功"})
+        else:
+            return JsonResponse({'error': 4003, 'msg': "UML不存在"})
+    else:
+        return JsonResponse({'error': 2001, 'msg': "请求方式错误"})
+
+
+@csrf_exempt
+def view_uml_list(request):
+    if request.method == 'POST':
+        DS = DesSecret()
+        project_id = request.POST.get('projectID')
+        try:
+            project_id = DS.des_de(project_id)
+        except:
+            return JsonResponse({'error': 3001, 'msg': "你的ID好像不太对哦?"})
+        try:
+            project = ProjectInfo.objects.get(projectID=project_id)
+        except:
+            return JsonResponse({'error': 4001, 'msg': "项目不存在"})
+        uml_list = []
+        for axure in UMLInfo.objects.filter(umlProject=project):
+            axure_item = {
+                'umlID': DS.des_en(str(axure.umlID).encode()),
+                'name': axure.umlName,
+                'creatorID': DS.des_en(str(axure.umlCreator.userID).encode()),
+                'content': axure.umlContent
+            }
+            uml_list.append(axure_item)
+        if not uml_list:
+            return JsonResponse({'error': 4002, 'msg': '项目暂无UML信息'})
+        return JsonResponse({'error': 0, 'msg': "查询成功", 'uml_list': uml_list})
+
     else:
         return JsonResponse({'error': 2001, 'msg': "请求方式错误"})

@@ -31,4 +31,8 @@ urlpatterns = [
     path('projectClick/', click_project),
     path('projectCopy/', copy_project),
     path('isCollect/', is_collect),
+    path('createUML/', create_uml),
+    path('saveUML/', uml_save),
+    path('renameUML/', rename_uml),
+    path('viewUMLList/', view_uml_list),
 ]
