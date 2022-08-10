@@ -80,9 +80,9 @@ def createDocument(request):
             document.project=project
             document.group=group
             if project:
-                document.type = False
-            else:
                 document.type = True
+            else:
+                document.type = False
             document.save()
             if project:
                 project.docNum += 1
@@ -233,6 +233,7 @@ def viewTeamDocList(request):
         team_id = DS.des_de(team_id)
         team = Group.objects.filter(groupId=team_id).first()
         if team:
+            projectNo = ProjectInfo.objects.filter(projectTeam=team).values('projectID').distinct()
             documentList = []
             docs= Document.objects.filter(group=team)
             for doc in docs:
@@ -252,32 +253,37 @@ def viewTeamDocList(request):
                         'childdoc': childdoc,
                     }
                     documentList.append(ret)
-                else:
-                    sub = 'true'
-                    pros=docs.values('project').distinct()
-                    for pro in pros:
-                        childdoc = []
-                        if pro['project']==None:
-                            continue
-                        for c in docs.filter(project=pro['project']).all():
-                            childdoc.append({
-                                'docid': c.docId,
-                                'title': c.title,
-                                'content': c.content,
-                                'docRight': c.docRight,
-                                'created_time': c.created_time,
-                                'modified_time': c.modified_time,
-                                'creator': c.creator.username,
-                                'group': c.group.groupName,
-                            })
-                        ret = {
-                            'docid': -1,
-                            'isSub': sub,
-                            'title': pro['project'],
-                            'content': None,
-                            'childdoc': childdoc,
-                        }
-                        documentList.append(ret)
+            for projectid in projectNo:
+                print(projectid['projectID'])
+                try:
+                    project = ProjectInfo.objects.get(projectID=projectid['projectID'])
+                except:
+                    print(projectNo['projectid'])
+                    return JsonResponse({'error': 1003, 'msg': "项目不存在"})
+                documents = Document.objects.filter(group=team, project=project)
+                if not documents:
+                    continue
+                childdocs = []
+                for document in documents:
+                    document_item = {
+                        'docid': document.docId,
+                        'title': document.title,
+                        'content': document.content,
+                        'docRight': document.docRight,
+                        'created_time': document.created_time,
+                        'modified_time': document.modified_time,
+                        'creator': document.creator.username,
+                        'group': document.group.groupName,
+                    }
+                    childdocs.append(document_item)
+                project_item = {
+                    'docid': -1,
+                    'isSub': 'true',
+                    'title': project.projectName,
+                    'content': None,
+                    'childdoc': childdocs,
+                }
+                documentList.append(project_item)
             return JsonResponse({'errno': 0, 'documentList': documentList})
         else:
             return JsonResponse({'errno': 1004, 'msg': "团队不存在"})
