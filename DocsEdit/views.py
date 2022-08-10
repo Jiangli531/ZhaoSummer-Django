@@ -47,19 +47,24 @@ def viewDocList(request):
 @csrf_exempt
 def createDocument(request):
     if request.method == 'POST':
+        type = request.POST.get('type')
         DS = DesSecret()
         userID = request.POST.get('userID')
         userid = DS.des_de(userID)
-        projectid = request.POST.get('projectID')
-        projectid = DS.des_de(projectid)
+        if type == '0':
+            projectid = request.POST.get('projectID')
+            projectid = DS.des_de(projectid)
+            try:
+                project = ProjectInfo.objects.get(projectID=projectid)
+            except:
+                return JsonResponse({'error': 1004, 'msg': "项目不存在"})
+        else:
+            project = None
         title = request.POST.get('title')
         groupid=request.POST.get('groupID')
         groupid=DS.des_de(groupid)
         group=Group.objects.filter(groupId=groupid).first()
-        if projectid == '-1':
-            project = None
-        else:
-            project = ProjectInfo.objects.get(projectID=projectid)
+
         if userid:
             user = UserInfo.objects.filter(userID=userid).first()
             doc = Document.objects.filter(title=title, project=project).first()
@@ -82,8 +87,8 @@ def createDocument(request):
                 project.docNum += 1
                 project.save()
             ret={
-                'docID':document.docId,
-                'title':document.title,
+                'docID': document.docId,
+                'title': document.title,
             }
             return JsonResponse({'errno': 0, 'data': ret})
         else:
