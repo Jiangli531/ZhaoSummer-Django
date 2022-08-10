@@ -996,3 +996,17 @@ def view_uml_list(request):
 
     else:
         return JsonResponse({'error': 2001, 'msg': "请求方式错误"})
+
+
+@csrf_exempt
+def check_project_limit(request):
+    if request.method == 'POST':
+        projectid = request.POST.get('projectID')
+        try:
+            project = ProjectInfo.objects.get(projectID=projectid)
+        except:
+            return JsonResponse({'error': 4001, 'msg': "项目不存在"})
+        limit = project.authority
+        return JsonResponse({'error': 0, 'msg': "查看成功", 'limit': limit})
+    else:
+        return JsonResponse({'error': 2001, 'msg': "请求方式错误"})

@@ -35,4 +35,5 @@ urlpatterns = [
     path('saveUML/', uml_save),
     path('renameUML/', rename_uml),
     path('viewUMLList/', view_uml_list),
+    path('checkProjectLimit/', check_project_limit),
 ]
